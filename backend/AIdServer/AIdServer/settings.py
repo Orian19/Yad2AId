@@ -16,6 +16,25 @@ NEWSPIDER_MODULE = "AIdServer.spiders"
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "AIdServer (+http://www.yourdomain.com)"
 
+# google agent
+# USER_AGENT = ("Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) "
+#               "Chrome/98.0.4758.80 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+
+# scrapy-user-agents (for different web id)
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
+}
+
+# # proxy (for different ip) in addition to the agents (doesn't work and makes it worse)
+# PROXY_POOL_ENABLED = True
+# DOWNLOADER_MIDDLEWARES.update({
+#     # ...
+#     'scrapy_proxy_pool.middlewares.ProxyPoolMiddleware': 610,
+#     'scrapy_proxy_pool.middlewares.BanDetectionMiddleware': 620,
+#     # ...
+# })
+
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
@@ -62,9 +81,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "AIdServer.pipelines.AidserverPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   "AIdServer.pipelines.AidserverPipeline": 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
