@@ -1,2 +1,3 @@
 # Yad2AId
-idea to Reality - Final Project
+## Transforming the Yad2 website to an AI-driven personal apartment finder
+Idea to Reality - Final Project
