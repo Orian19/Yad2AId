@@ -8,4 +8,10 @@ import scrapy
 
 class AidserverItem(scrapy.Item):
     # define the fields for your item here like:
-    title = scrapy.Field()
+    price = scrapy.Field()
+    city = scrapy.Field()
+    address = scrapy.Field()
+    rooms = scrapy.Field()
+    floor = scrapy.Field()
+    sqm = scrapy.Field()
+    image = scrapy.Field()

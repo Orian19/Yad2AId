@@ -1,4 +1,6 @@
 from typing import Any
+import json
+import re
 
 import scrapy
 from scrapy.http import Response
@@ -14,13 +16,77 @@ class ApartmentsSpider(scrapy.Spider):
     }
     page_number = 2  # pagination
 
+    @staticmethod
+    def load_config(cfg_file=r'scraping_cfg.json'):
+        """
+        loading the json config
+        :param cfg_file:
+        :return:
+        """
+        with open(cfg_file) as config_file:
+            return json.load(config_file)
+
+    @staticmethod
+    def remove_bidi_controls(text):
+        return re.sub(r'[\u200e\u200f]', '', text)
+
+    def parse_rooms_floor_sqm(self, values):
+        rooms = []
+        floor = []
+        sqm = []
+        for html in values:
+            match = re.search(r'>([^<]+)<', html)
+            if match:
+                # Reverse the entire matched string and split by the dot symbol '•'
+                parts = match.group(1)[::-1].split(' • ')
+
+                # Reverse each word in the split parts
+                reversed_parts = [' '.join(word[::-1] for word in part.split()) for part in parts]
+
+                # Append the reversed parts to the respective lists
+                if len(reversed_parts) == 3:
+                    rooms.append(reversed_parts[2].strip().split(' ')[-1])
+                    fl = reversed_parts[1].strip().split(' ')[0].strip('\u200e\u200f')
+                    if fl == 'קרקע':
+                        fl = 0
+                    floor.append(int(fl))
+                    sqm.append(reversed_parts[0].strip().split(' ')[-1])
+                else:
+                    rooms.append('-1')
+                    floor.append('-1')
+                    sqm.append('-1')
+            else:
+                rooms.append('-1')
+                floor.append('-1')
+                sqm.append('-1')
+
+        return rooms, floor, sqm
+
     def parse(self, response: Response, **kwargs: Any) -> Any:
         # open_in_browser(response)  # for debugging purposes
 
+        scraping_cfg = self.load_config()
         items = AidserverItem()
 
-        title = response.css("title::text").extract()
-        items['title'] = title
+        # scraping all the relevant items
+        price = response.xpath(scraping_cfg['xPaths']['price']).extract()
+        # -1 if "לא צוין מחיר"
+        price = [int(re.search(r'\d+,\d+', html).group().replace(',', '')) if re.search(r'\d+,\d+', html) else -1 for html in price]
+        city = response.xpath(scraping_cfg['xPaths']['city']).extract()
+        city = [re.search(r'>([^<]+)<', html).group(1).split(',')[-1] if re.search(r'>([^<]+)<', html) else '' for html in city]
+        address = response.xpath(scraping_cfg['xPaths']['address']).extract()
+        address = [re.search(r'>([^<]+)<', html).group(1) if re.search(r'>([^<]+)<', html) else '' for html in address]
+        rooms_floor_sqm = response.xpath(scraping_cfg['xPaths']['rooms_floor_sqm']).extract()
+        rooms, floor, sqm = self.parse_rooms_floor_sqm(rooms_floor_sqm)
+        image = response.xpath(scraping_cfg['xPaths']['image']).extract()
+        image = [re.search(r'src="([^"]+)"', html).group(1) if re.search(r'src="([^"]+)"', html) else '' for html in image]
+        items['price'] = price
+        items['city'] = city
+        items['address'] = address
+        items['rooms'] = rooms
+        items['floor'] = floor
+        items['sqm'] = sqm
+        items['image'] = image
 
         # user = class ="user-drop-container_profileBoxText__deZ0a user-drop-container_wideDesktop__wuusc" > Orian < /span >
 
