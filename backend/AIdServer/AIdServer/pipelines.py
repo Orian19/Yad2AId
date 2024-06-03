@@ -16,7 +16,7 @@ class AidserverPipeline:
         self.cursor = None
         self.create_connection()
         self.create_tables()
-        self.close_connection()  # todo: need to close connection somewhere
+        # self.close_connection()  # todo: need to close connection somewhere
 
     def create_connection(self):
         # register the adapter and converter for numpy array
