@@ -16,7 +16,7 @@ class AidserverPipeline:
         self.cursor = None
         self.create_connection()
         self.create_tables()
-        # self.close_connection()  # todo: need to close connection somewhere
+        self.close_connection()  # todo: need to close connection somewhere
 
     def create_connection(self):
         # register the adapter and converter for numpy array
@@ -36,9 +36,23 @@ class AidserverPipeline:
                 Name TEXT
                 )""")
 
+        # self.cursor.execute("""CREATE TABLE IF NOT EXISTS Cities(
+        #                 CityId INTEGER PRIMARY KEY AUTOINCREMENT,
+        #                 City TEXT UNIQUE
+        # )""")
+        # add to apartments table instead of city TEXT
+        # CityId INTEGER,
+        # FOREIGN KEY (CityId) REFERENCES Cities (CityId)
+
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Apartments(
                         ApartmentId INTEGER PRIMARY KEY AUTOINCREMENT,
                         City TEXT,
+                        Price INTEGER,
+                        Address TEXT,
+                        Rooms INTEGER,
+                        Floor INTEGER,
+                        SQM INTEGER,
+                        Image TEXT,
                         Embedding array
                         )""")
 
@@ -130,23 +144,33 @@ class AidserverPipeline:
                                            , 0.01152588, 0.05660764, 0.08472047, 0.04350614, 0.02702423, 0.09045
                                            , 0.00585843, 0.04549238, 0.0963323, 0.0987769])
 
-        self.cursor.execute("""INSERT INTO Users (Name) VALUES (?)""", (
+        self.cursor.execute("""INSERT OR IGNORE INTO Users (Name) VALUES (?)""", (
             "Orian",
         ))
 
-        self.cursor.execute("""INSERT INTO Apartments (City, Embedding) VALUES (?,?)""", (
-            item.get('title')[0],
-            embedding_example
-        ))
+        for i in range(len(item.get('image'))):
+            try:
+                self.cursor.execute(
+                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image) VALUES (?,?,?,?,?,?,?)""", (
+                        item.get('city')[i],
+                        item.get('price')[i],
+                        item.get('address')[i],
+                        item.get('rooms')[i],
+                        item.get('floor')[i],
+                        item.get('sqm')[i],
+                        item.get('image')[i]
+                    ))
+            except Exception as e:
+                print(e)
 
-        self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
-            0,
-            0
-        ))
-
-        self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
-            0,
-            0
-        ))
+        # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+        #     0,
+        #     0
+        # ))
+        #
+        # self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+        #     0,
+        #     0
+        # ))
 
         self.connection.commit()
