@@ -1,0 +1,9 @@
+{
+  "xPaths": {
+    "price": "//span[@class=\"price_price__xQt90\"]",
+    "city": "//span[@class=\"item-data-content_itemInfoLine__AeoPP item-data-content_first__oi7xM\"]",
+    "address": "//span[@class=\"item-data-content_heading__tphH4\"]",
+    "rooms_floor_sqm": "//span[@class=\"item-data-content_itemInfoLine__AeoPP\"]",
+    "image": "//img[@data-nagish=\"feed-item-image\"]"
+  }
+}
