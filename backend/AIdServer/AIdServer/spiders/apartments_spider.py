@@ -27,10 +27,7 @@ class ApartmentsSpider(scrapy.Spider):
             return json.load(config_file)
 
     @staticmethod
-    def remove_bidi_controls(text):
-        return re.sub(r'[\u200e\u200f]', '', text)
-
-    def parse_rooms_floor_sqm(self, values):
+    def parse_rooms_floor_sqm(values):
         rooms = []
         floor = []
         sqm = []
