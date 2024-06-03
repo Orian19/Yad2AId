@@ -10,27 +10,70 @@ from itemadapter import ItemAdapter
 
 class AidserverPipeline:
     def __init__(self):
-        self.conn = None
-        self.curr = None
+        self.connection = None
+        self.cursor = None
         self.create_connection()
-        self.create_table()
+        self.create_tables()
+        # self.close_connection()  # todo: need to close connection somewhere
 
     def create_connection(self):
-        self.conn = sqlite3.connect("apartmentsAId.db")
-        self.curr = self.conn.cursor()
+        self.connection = sqlite3.connect("apartmentsAId.db")
+        self.cursor = self.connection.cursor()
 
-    def create_table(self):
-        self.curr.execute("""DROP TABLE IF EXISTS apartments_tb""")
-        self.curr.execute("""create table apartments_tb(
-                title text
+    def close_connection(self):
+        self.connection.close()
+
+    def create_tables(self):
+        # self.cursor.execute("""DROP TABLE IF EXISTS apartments_tb""")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
+                UserId INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name TEXT
                 )""")
+
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Apartments(
+                        ApartmentId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        City TEXT,
+                        Embedding INTEGER
+                        )""")
+
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserLikedApartments(
+                        UserId INTEGER,
+                        ApartmentId INTEGER,
+                        FOREIGN KEY (UserId) REFERENCES Users(UserId),
+                        FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
+                        PRIMARY KEY (UserId, ApartmentId)
+                        )""")
+
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserDislikedApartments(
+                                UserId INTEGER,
+                                ApartmentId INTEGER,
+                                FOREIGN KEY (UserId) REFERENCES Users(UserId),
+                                FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
+                                PRIMARY KEY (UserId, ApartmentId)
+                                )""")
 
     def process_item(self, item, spider):
         self.store_item(item)
         return item
 
     def store_item(self, item):
-        self.curr.execute("""insert into apartments_tb values (?)""", (
-            item['title'][0],
+        self.cursor.execute("""INSERT INTO Users (Name) VALUES (?)""", (
+            "Orian",
         ))
-        self.conn.commit()
+
+        self.cursor.execute("""INSERT INTO Apartments (City, Embedding) VALUES (?,?)""", (
+            item.get('title')[0],
+            "0101"
+        ))
+
+        self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+            0,
+            0
+        ))
+
+        self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+            0,
+            0
+        ))
+
+        self.connection.commit()
