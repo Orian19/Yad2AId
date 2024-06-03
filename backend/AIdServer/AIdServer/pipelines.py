@@ -53,6 +53,7 @@ class AidserverPipeline:
                         Floor INTEGER,
                         SQM INTEGER,
                         Image TEXT,
+                        Seen INTEGER,
                         Embedding array
                         )""")
 
@@ -107,14 +108,15 @@ class AidserverPipeline:
         for i in range(len(item.get('image'))):
             try:
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image) VALUES (?,?,?,?,?,?,?)""", (
+                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image, Seen) VALUES (?,?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
                         item.get('rooms')[i],
                         item.get('floor')[i],
                         item.get('sqm')[i],
-                        item.get('image')[i]
+                        item.get('image')[i],
+                        0  # default value for seen is 0 = unseen
                     ))
             except Exception as e:
                 print(e)
