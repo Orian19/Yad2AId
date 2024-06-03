@@ -53,7 +53,6 @@ class AidserverPipeline:
                         Floor INTEGER,
                         SQM INTEGER,
                         Image TEXT,
-                        Seen INTEGER,
                         Embedding array
                         )""")
 
@@ -72,6 +71,14 @@ class AidserverPipeline:
                                 FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
                                 PRIMARY KEY (UserId, ApartmentId)
                                 )""")
+
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserSeenApartments(
+                                        UserId INTEGER,
+                                        ApartmentId INTEGER,
+                                        FOREIGN KEY (UserId) REFERENCES Users(UserId),
+                                        FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
+                                        PRIMARY KEY (UserId, ApartmentId)
+                                        )""")
 
     def process_item(self, item, spider):
         self.store_item(item)
@@ -108,7 +115,7 @@ class AidserverPipeline:
         for i in range(len(item.get('image'))):
             try:
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image, Seen) VALUES (?,?,?,?,?,?,?,?)""", (
+                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image) VALUES (?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
@@ -116,7 +123,6 @@ class AidserverPipeline:
                         item.get('floor')[i],
                         item.get('sqm')[i],
                         item.get('image')[i],
-                        0  # default value for seen is 0 = unseen
                     ))
             except Exception as e:
                 print(e)
@@ -127,6 +133,11 @@ class AidserverPipeline:
         # ))
         #
         # self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+        #     0,
+        #     0
+        # ))
+        #
+        # self.cursor.execute("""INSERT INTO UserSeenApartments (UserId, ApartmentId) VALUES (?,?)""", (
         #     0,
         #     0
         # ))
