@@ -14,4 +14,5 @@ class AidserverItem(scrapy.Item):
     rooms = scrapy.Field()
     floor = scrapy.Field()
     sqm = scrapy.Field()
+    description = scrapy.Field()
     image = scrapy.Field()

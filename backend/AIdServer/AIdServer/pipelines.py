@@ -52,6 +52,7 @@ class AidserverPipeline:
                         Rooms INTEGER,
                         Floor INTEGER,
                         SQM INTEGER,
+                        Description TEXT,
                         Image TEXT,
                         Embedding array
                         )""")
@@ -115,13 +116,14 @@ class AidserverPipeline:
         for i in range(len(item.get('image'))):
             try:
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image) VALUES (?,?,?,?,?,?,?)""", (
+                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image) VALUES (?,?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
                         item.get('rooms')[i],
                         item.get('floor')[i],
                         item.get('sqm')[i],
+                        item.get('description')[i],
                         item.get('image')[i],
                     ))
             except Exception as e:
