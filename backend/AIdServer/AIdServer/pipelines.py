@@ -54,6 +54,7 @@ class AidserverPipeline:
                         SQM INTEGER,
                         Description TEXT,
                         Image TEXT,
+                        PaidAd BOOLEAN DEFAULT FALSE,
                         Embedding array
                         )""")
 
@@ -116,7 +117,7 @@ class AidserverPipeline:
         for i in range(len(item.get('image'))):
             try:
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image) VALUES (?,?,?,?,?,?,?,?)""", (
+                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, PaidAd) VALUES (?,?,?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
@@ -125,6 +126,7 @@ class AidserverPipeline:
                         item.get('sqm')[i],
                         item.get('description')[i],
                         item.get('image')[i],
+                        item.get('paid_ad')[i]
                     ))
             except Exception as e:
                 print(e)

@@ -74,6 +74,7 @@ class ApartmentsSpider(scrapy.Spider):
         :param kwargs: additional arguments
         :return:
         """
+        open_in_browser(response)
         if 'Shield' in str(response.body):
             raise Exception("Shield detected, exiting...")
 
@@ -91,6 +92,8 @@ class ApartmentsSpider(scrapy.Spider):
         rooms, floor, sqm = self.parse_rooms_floor_sqm(rooms_floor_sqm)
         image = response.xpath(scraping_cfg['xPaths']['image']).extract()
         image = [re.search(r'src="([^"]+)"', html).group(1) if re.search(r'src="([^"]+)"', html) else '' for html in image]
+        paid_ad = response.xpath(scraping_cfg['xPaths']['paid_ad']).extract()
+        paid_ad = [True if re.search(r'>([^<]+)<', html).group(1) else False for html in paid_ad]
         apt_urls = response.xpath(scraping_cfg['xPaths']['apt_href']).extract()
         apt_urls = [re.search(r'href="([^"]+)"', html).group(1) if re.search(r'href="([^"]+)"', html) else '' for html in apt_urls]
 
@@ -101,6 +104,7 @@ class ApartmentsSpider(scrapy.Spider):
         self.items['floor'] = floor
         self.items['sqm'] = sqm
         self.items['image'] = image
+        self.items['paid_ad'] = paid_ad
 
         self.descriptions = []
         self.pending_requests = len(apt_urls)
@@ -129,6 +133,7 @@ class ApartmentsSpider(scrapy.Spider):
 
             # pagination
             next_page = f'https://www.yad2.co.il/realestate/rent?page={str(ApartmentsSpider.page_number)}'
+            # todo: change pages num
             if ApartmentsSpider.page_number <= 3:
                 ApartmentsSpider.page_number += 1
                 yield response.follow(next_page, callback=self.parse)  # follow the next page
