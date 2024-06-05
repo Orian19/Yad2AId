@@ -4,6 +4,9 @@
     "city": "//span[@class=\"item-data-content_itemInfoLine__AeoPP item-data-content_first__oi7xM\"]",
     "address": "//span[@class=\"item-data-content_heading__tphH4\"]",
     "rooms_floor_sqm": "//span[@class=\"item-data-content_itemInfoLine__AeoPP\"]",
-    "image": "//img[@data-nagish=\"feed-item-image\"]"
+    "apt_href": "//a[@data-nagish=\"feed-item-layout-link\"]",
+    "description": "//p[@class=\"description_description__l3oun\"]",
+    "image": "//img[@data-nagish=\"feed-item-image\"]",
+    "paid_ad": "//span[@class=\"price-and-extra_startFrom__fVS2L desktop-only\"]"
   }
 }
