@@ -74,7 +74,7 @@ class ApartmentsSpider(scrapy.Spider):
         :param kwargs: additional arguments
         :return:
         """
-        open_in_browser(response)
+        # open_in_browser(response) # for debugging purposes
         if 'Shield' in str(response.body):
             raise Exception("Shield detected, exiting...")
 
