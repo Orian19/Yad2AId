@@ -75,7 +75,7 @@ class ApartmentsSpider(scrapy.Spider):
         :return:
         """
         # open_in_browser(response) # for debugging purposes
-        if 'Shield' in str(response.body):
+        if 'Shield' in str(response.body) or 'Secure' in str(response.certificate):
             raise Exception("Shield detected, exiting...")
 
         scraping_cfg = self.load_config()

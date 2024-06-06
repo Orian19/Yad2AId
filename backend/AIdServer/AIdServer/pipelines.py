@@ -33,7 +33,7 @@ class AidserverPipeline:
         # self.cursor.execute("""DROP TABLE IF EXISTS apartments_tb""")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
                 UserId INTEGER PRIMARY KEY AUTOINCREMENT,
-                Name TEXT
+                Name TEXT UNIQUE
                 )""")
 
         # self.cursor.execute("""CREATE TABLE IF NOT EXISTS Cities(
@@ -48,7 +48,7 @@ class AidserverPipeline:
                         ApartmentId INTEGER PRIMARY KEY AUTOINCREMENT,
                         City TEXT,
                         Price INTEGER,
-                        Address TEXT,
+                        Address TEXT UNIQUE,
                         Rooms INTEGER,
                         Floor INTEGER,
                         SQM INTEGER,
@@ -118,7 +118,7 @@ class AidserverPipeline:
         for i in range(len(item.get('image'))):
             try:
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, PaidAd, Url) VALUES (?,?,?,?,?,?,?,?,?,?)""", (
+                    """INSERT OR IGNORE INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, PaidAd, Url) VALUES (?,?,?,?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
