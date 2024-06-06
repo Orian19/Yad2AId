@@ -55,6 +55,7 @@ class AidserverPipeline:
                         Description TEXT,
                         Image TEXT,
                         PaidAd BOOLEAN DEFAULT FALSE,
+                        Url TEXT,
                         Embedding array
                         )""")
 
@@ -117,7 +118,7 @@ class AidserverPipeline:
         for i in range(len(item.get('image'))):
             try:
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, PaidAd) VALUES (?,?,?,?,?,?,?,?,?)""", (
+                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, PaidAd, Url) VALUES (?,?,?,?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
@@ -126,7 +127,8 @@ class AidserverPipeline:
                         item.get('sqm')[i],
                         item.get('description')[i],
                         item.get('image')[i],
-                        item.get('paid_ad')[i]
+                        item.get('paid_ad')[i],
+                        item.get('url')[i]
                     ))
             except Exception as e:
                 print(e)

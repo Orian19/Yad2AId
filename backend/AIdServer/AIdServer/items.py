@@ -17,3 +17,4 @@ class AidserverItem(scrapy.Item):
     description = scrapy.Field()
     image = scrapy.Field()
     paid_ad = scrapy.Field()
+    url = scrapy.Field()

@@ -1,4 +1,7 @@
 {
+  "urls": {
+    "apt_start_url": "https://www.yad2.co.il"
+  },
   "xPaths": {
     "price": "//span[@class=\"price_price__xQt90\"]",
     "city": "//span[@class=\"item-data-content_itemInfoLine__AeoPP item-data-content_first__oi7xM\"]",

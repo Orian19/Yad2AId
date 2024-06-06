@@ -105,13 +105,14 @@ class ApartmentsSpider(scrapy.Spider):
         self.items['sqm'] = sqm
         self.items['image'] = image
         self.items['paid_ad'] = paid_ad
+        self.items['url'] = [scraping_cfg['urls']['apt_start_url'] + apt for apt in apt_urls]
+        self.descriptions = [None] * len(apt_urls)
 
-        self.descriptions = []
         self.pending_requests = len(apt_urls)
 
         # following the specific apartments links to get the description + yielding items to the pipeline
-        for apt_url in apt_urls:
-            yield response.follow(apt_url, callback=self.parse_description, meta={'scraping_cfg': scraping_cfg})
+        for i, apt_url in enumerate(apt_urls):
+            yield response.follow(apt_url, callback=self.parse_description, meta={'scraping_cfg': scraping_cfg, 'index': i})
 
     def parse_description(self, response: Response):
         """
@@ -120,11 +121,12 @@ class ApartmentsSpider(scrapy.Spider):
         :return:
         """
         cfg = response.meta['scraping_cfg']
+        index = response.meta['index']
         description = response.xpath(cfg['xPaths']['description']).extract()
         if description:
             description = re.search(r'<p class="description_description__l3oun">(.*?)</p>', description[0],
                                 re.DOTALL).group(1).replace("\n", '')
-        self.descriptions.append(description)
+        self.descriptions[index] = description
         self.pending_requests -= 1
 
         if self.pending_requests == 0:
