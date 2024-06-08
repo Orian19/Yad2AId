@@ -110,15 +110,31 @@ class AidserverPipeline:
         out.seek(0)
         return np.load(out, allow_pickle=True)
 
+    @staticmethod
+    def find_shortest_list_length(item, keys):
+        """
+        find the shortest list length in the item
+        :param item:
+        :param key:
+        :return:
+        """
+        lengths = {k: len(item.get(k)) for k in keys}
+        min_key = min(lengths, key=lengths.get)
+        return lengths[min_key], min_key
+
     def store_item(self, item):
         self.cursor.execute("""INSERT OR IGNORE INTO Users (Name) VALUES (?)""", (
             "Orian",
         ))
 
-        for i in range(len(item.get('image'))):
+        min_len, key = self.find_shortest_list_length(item, ['city', 'price', 'address', 'rooms', 'floor', 'sqm', 'description', 'image', 'url'])
+
+        for i in range(min_len):
             try:
+                if item.get('description')[i]:
+                    item.get('description')[i] = ''
                 self.cursor.execute(
-                    """INSERT OR IGNORE INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, PaidAd, Url) VALUES (?,?,?,?,?,?,?,?,?,?)""", (
+                    """INSERT OR IGNORE INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""", (
                         item.get('city')[i],
                         item.get('price')[i],
                         item.get('address')[i],
@@ -127,11 +143,14 @@ class AidserverPipeline:
                         item.get('sqm')[i],
                         item.get('description')[i],
                         item.get('image')[i],
-                        item.get('paid_ad')[i],
+                        # item.get('paid_ad')[i],
                         item.get('url')[i]
                     ))
             except Exception as e:
+                self.connection.commit()
+                print(key)
                 print(e)
+
 
         # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
         #     0,
