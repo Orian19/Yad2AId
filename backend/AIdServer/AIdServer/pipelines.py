@@ -2,9 +2,8 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-import sqlite3
-import numpy as np
-import io
+
+from utils.db_utils import create_connection
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
@@ -12,19 +11,9 @@ from itemadapter import ItemAdapter
 
 class AidserverPipeline:
     def __init__(self):
-        self.connection = None
-        self.cursor = None
-        self.create_connection()
+        self.connection, self.cursor = create_connection()
         self.create_tables()
         # self.close_connection()  # todo: need to close connection somewhere
-
-    def create_connection(self):
-        # register the adapter and converter for numpy array
-        sqlite3.register_adapter(np.ndarray, self.adapt_array)
-        sqlite3.register_converter("array", self.convert_array)
-
-        self.connection = sqlite3.connect("apartmentsAId.db", detect_types=sqlite3.PARSE_DECLTYPES)
-        self.cursor = self.connection.cursor()
 
     def close_connection(self):
         self.connection.close()
@@ -86,29 +75,6 @@ class AidserverPipeline:
         return item
 
     @staticmethod
-    def adapt_array(arr):
-        """
-        adapt numpy array to binary format for SQLite
-        :param arr: numpy array
-        :return:
-        """
-        out = io.BytesIO()
-        np.save(out, arr)
-        out.seek(0)
-        return sqlite3.Binary(out.read())
-
-    @staticmethod
-    def convert_array(text):
-        """
-        convert binary format back to numpy array.
-        :param text:
-        :return: numpy array
-        """
-        out = io.BytesIO(text)
-        out.seek(0)
-        return np.load(out, allow_pickle=True)
-
-    @staticmethod
     def find_shortest_list_length(item, keys):
         """
         find the shortest list length in the item
@@ -139,7 +105,8 @@ class AidserverPipeline:
             "Orian",
         ))
 
-        min_len, key = self.find_shortest_list_length(item, ['city', 'price', 'address', 'rooms', 'floor', 'sqm', 'description', 'image', 'url'])
+        min_len, key = self.find_shortest_list_length(item, ['city', 'price', 'address', 'rooms', 'floor', 'sqm',
+                                                             'description', 'image', 'url'])
 
         for i in range(min_len):
             try:
@@ -148,7 +115,8 @@ class AidserverPipeline:
 
                 city_id = self.get_or_create_city(item.get('city')[i])
                 self.cursor.execute(
-                    """INSERT OR IGNORE INTO Apartments (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""", (
+                    """INSERT OR IGNORE INTO Apartments (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""",
+                    (
                         city_id,
                         item.get('price')[i],
                         item.get('address')[i],
@@ -164,7 +132,6 @@ class AidserverPipeline:
                 self.connection.commit()
                 print(key)
                 print(e)
-
 
         # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
         #     0,
