@@ -76,7 +76,7 @@ class ApartmentsSpider(scrapy.Spider):
         :param kwargs: additional arguments
         :return:
         """
-        open_in_browser(response)  # for debugging purposes
+        # open_in_browser(response)  # for debugging purposes
 
         if 'Shield' in str(response.body):  # or 'Secure' in str(response.certificate):
             raise Exception("Shield detected, exiting...")
@@ -115,8 +115,15 @@ class ApartmentsSpider(scrapy.Spider):
 
         # following the specific apartments links to get the description + yielding items to the pipeline
         for i, apt_url in enumerate(apt_urls):
-            time.sleep(random.uniform(1, 2))
             yield response.follow(apt_url, callback=self.parse_description, meta={'scraping_cfg': scraping_cfg, 'index': i})
+
+        # pagination
+        next_page = f'https://www.yad2.co.il/realestate/rent?page={str(ApartmentsSpider.page_number)}'
+        # todo: change pages num
+        if ApartmentsSpider.page_number <= 1000:
+            # todo: issue that getting low number of apartments (for 50 pages only 200 apartments instead of 2000)
+            ApartmentsSpider.page_number += 1
+            yield response.follow(next_page, callback=self.parse)  # follow the next page
 
     def parse_description(self, response: Response):
         """
@@ -137,13 +144,6 @@ class ApartmentsSpider(scrapy.Spider):
 
         if self.pending_requests == 0:
             self.items['description'] = self.descriptions
+            time.sleep(random.randint(3, 5))
             yield self.items  # yield the items to the pipeline
-
-            # pagination
-            next_page = f'https://www.yad2.co.il/realestate/rent?page={str(ApartmentsSpider.page_number)}'
-            # todo: change pages num
-            if ApartmentsSpider.page_number <= 50:
-                ApartmentsSpider.page_number += 1
-                time.sleep(random.uniform(2, 6))
-                yield response.follow(next_page, callback=self.parse)  # follow the next page
 

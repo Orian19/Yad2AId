@@ -131,7 +131,7 @@ class AidserverPipeline:
 
         for i in range(min_len):
             try:
-                if item.get('description')[i]:
+                if item.get('description')[i] == []:
                     item.get('description')[i] = ''
                 self.cursor.execute(
                     """INSERT OR IGNORE INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""", (
