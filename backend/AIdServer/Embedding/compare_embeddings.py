@@ -8,7 +8,8 @@ from  backend.AIdServer.utils.db_utils import adapt_array, convert_array
 def fetch_ids_and_embeddings():
     """Fetches apartment IDs and pre-calculated embedding from the SQLite database."""
     con, cur = create_connection()
-    cur.execute("SELECT ApartmentId, Embedding FROM Apartments")  # Adjust table and column names if necessary
+    cur.execute("SELECT ApartmentId, Embedding FROM Apartments WHERE Description IS NOT NULL AND TRIM(Description) != '' AND Embedding IS NULL")
+  # Adjust table and column names if necessary
     result = cur.fetchall()
     ids_embeddings = []
     expected_shape = None  # We will determine this from the first valid embedding.
