@@ -33,27 +33,28 @@ class AidserverPipeline:
         # self.cursor.execute("""DROP TABLE IF EXISTS apartments_tb""")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Users(
                 UserId INTEGER PRIMARY KEY AUTOINCREMENT,
-                Name TEXT
+                Name TEXT UNIQUE
                 )""")
 
-        # self.cursor.execute("""CREATE TABLE IF NOT EXISTS Cities(
-        #                 CityId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #                 City TEXT UNIQUE
-        # )""")
-        # add to apartments table instead of city TEXT
-        # CityId INTEGER,
-        # FOREIGN KEY (CityId) REFERENCES Cities (CityId)
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Cities(
+                        CityId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        CityName TEXT UNIQUE
+        )""")
 
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Apartments(
                         ApartmentId INTEGER PRIMARY KEY AUTOINCREMENT,
-                        City TEXT,
+                        CityId INTEGER,
                         Price INTEGER,
-                        Address TEXT,
+                        Address TEXT UNIQUE,
                         Rooms INTEGER,
                         Floor INTEGER,
                         SQM INTEGER,
+                        Description TEXT,
                         Image TEXT,
-                        Embedding array
+                        PaidAd BOOLEAN DEFAULT FALSE,
+                        Url TEXT,
+                        Embedding array,
+                        FOREIGN KEY (CityId) REFERENCES Cities(CityId)
                         )""")
 
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserLikedApartments(
@@ -71,6 +72,14 @@ class AidserverPipeline:
                                 FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
                                 PRIMARY KEY (UserId, ApartmentId)
                                 )""")
+
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserSeenApartments(
+                                        UserId INTEGER,
+                                        ApartmentId INTEGER,
+                                        FOREIGN KEY (UserId) REFERENCES Users(UserId),
+                                        FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
+                                        PRIMARY KEY (UserId, ApartmentId)
+                                        )""")
 
     def process_item(self, item, spider):
         self.store_item(item)
@@ -99,25 +108,63 @@ class AidserverPipeline:
         out.seek(0)
         return np.load(out, allow_pickle=True)
 
+    @staticmethod
+    def find_shortest_list_length(item, keys):
+        """
+        find the shortest list length in the item
+        :param item:
+        :param key:
+        :return:
+        """
+        lengths = {k: len(item.get(k)) for k in keys}
+        min_key = min(lengths, key=lengths.get)
+        return lengths[min_key], min_key
+
+    def get_or_create_city(self, city_name):
+        """
+        get or create city in the database
+        :param city_name:
+        :return: city id
+        """
+        self.cursor.execute("SELECT CityId FROM Cities WHERE CityName = ?", (city_name,))
+        result = self.cursor.fetchone()
+        if result:  # city exists
+            return result[0]
+        else:  # city does not exist
+            self.cursor.execute("INSERT INTO Cities (CityName) VALUES (?)", (city_name,))
+            return self.cursor.lastrowid
+
     def store_item(self, item):
         self.cursor.execute("""INSERT OR IGNORE INTO Users (Name) VALUES (?)""", (
             "Orian",
         ))
 
-        for i in range(len(item.get('image'))):
+        min_len, key = self.find_shortest_list_length(item, ['city', 'price', 'address', 'rooms', 'floor', 'sqm', 'description', 'image', 'url'])
+
+        for i in range(min_len):
             try:
+                if item.get('description')[i] == []:
+                    item.get('description')[i] = ''
+
+                city_id = self.get_or_create_city(item.get('city')[i])
                 self.cursor.execute(
-                    """INSERT INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Image) VALUES (?,?,?,?,?,?,?)""", (
-                        item.get('city')[i],
+                    """INSERT OR IGNORE INTO Apartments (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""", (
+                        city_id,
                         item.get('price')[i],
                         item.get('address')[i],
                         item.get('rooms')[i],
                         item.get('floor')[i],
                         item.get('sqm')[i],
-                        item.get('image')[i]
+                        item.get('description')[i],
+                        item.get('image')[i],
+                        # item.get('paid_ad')[i],
+                        item.get('url')[i]
                     ))
             except Exception as e:
+                self.connection.commit()
+                print(key)
                 print(e)
+
 
         # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
         #     0,
@@ -125,6 +172,11 @@ class AidserverPipeline:
         # ))
         #
         # self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+        #     0,
+        #     0
+        # ))
+        #
+        # self.cursor.execute("""INSERT INTO UserSeenApartments (UserId, ApartmentId) VALUES (?,?)""", (
         #     0,
         #     0
         # ))

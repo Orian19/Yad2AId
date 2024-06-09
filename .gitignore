@@ -3,3 +3,4 @@ backend/AIdServer/AIdServer/__pycache__
 backend/AIdServer/AIdServer/spiders/__pycache__
 __pycache__
 *.DS_Store
+.env

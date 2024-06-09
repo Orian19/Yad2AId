@@ -1,3 +1,5 @@
+import random
+import time
 from typing import Any
 import json
 import re
@@ -15,6 +17,9 @@ class ApartmentsSpider(scrapy.Spider):
         r'https://www.yad2.co.il/realestate/rent'
     }
     page_number = 2  # pagination
+    descriptions = []
+    pending_requests = 0
+    items = None
 
     @staticmethod
     def load_config(cfg_file=r'scraping_cfg.json'):
@@ -28,6 +33,11 @@ class ApartmentsSpider(scrapy.Spider):
 
     @staticmethod
     def parse_rooms_floor_sqm(values):
+        """
+        parsing the rooms, floor and sqm from the html values
+        :param values: list of html values
+        :return: rooms, floor, sqm
+        """
         rooms = []
         floor = []
         sqm = []
@@ -60,14 +70,22 @@ class ApartmentsSpider(scrapy.Spider):
         return rooms, floor, sqm
 
     def parse(self, response: Response, **kwargs: Any) -> Any:
+        """
+        parsing the response from the website
+        :param response: the response from the website
+        :param kwargs: additional arguments
+        :return:
+        """
         # open_in_browser(response)  # for debugging purposes
 
+        if 'Shield' in str(response.body):  # or 'Secure' in str(response.certificate):
+            raise Exception("Shield detected, exiting...")
+
         scraping_cfg = self.load_config()
-        items = AidserverItem()
+        self.items = AidserverItem()
 
         # scraping all the relevant items
         price = response.xpath(scraping_cfg['xPaths']['price']).extract()
-        # -1 if "לא צוין מחיר"
         price = [int(re.search(r'\d+,\d+', html).group().replace(',', '')) if re.search(r'\d+,\d+', html) else -1 for html in price]
         city = response.xpath(scraping_cfg['xPaths']['city']).extract()
         city = [re.search(r'>([^<]+)<', html).group(1).split(',')[-1] if re.search(r'>([^<]+)<', html) else '' for html in city]
@@ -77,23 +95,54 @@ class ApartmentsSpider(scrapy.Spider):
         rooms, floor, sqm = self.parse_rooms_floor_sqm(rooms_floor_sqm)
         image = response.xpath(scraping_cfg['xPaths']['image']).extract()
         image = [re.search(r'src="([^"]+)"', html).group(1) if re.search(r'src="([^"]+)"', html) else '' for html in image]
-        items['price'] = price
-        items['city'] = city
-        items['address'] = address
-        items['rooms'] = rooms
-        items['floor'] = floor
-        items['sqm'] = sqm
-        items['image'] = image
+        # paid_ad = response.xpath(scraping_cfg['xPaths']['paid_ad']).extract()
+        # paid_ad = [True if re.search(r'>([^<]+)<', html).group(1) else False for html in paid_ad]
+        apt_urls = response.xpath(scraping_cfg['xPaths']['apt_href']).extract()
+        apt_urls = [re.search(r'href="([^"]+)"', html).group(1) if re.search(r'href="([^"]+)"', html) else '' for html in apt_urls]
 
-        # user = class ="user-drop-container_profileBoxText__deZ0a user-drop-container_wideDesktop__wuusc" > Orian < /span >
+        self.items['price'] = price
+        self.items['city'] = city
+        self.items['address'] = address
+        self.items['rooms'] = rooms
+        self.items['floor'] = floor
+        self.items['sqm'] = sqm
+        self.items['image'] = image
+        # self.items['paid_ad'] = paid_ad
+        self.items['url'] = [scraping_cfg['urls']['apt_start_url'] + apt for apt in apt_urls]
+        self.descriptions = [''] * len(apt_urls)
 
-        # sends item to pipline
-        yield items
+        self.pending_requests = len(apt_urls)
 
-        # next_page = response.css('<a data-testid="nextButton" class="link_link__vOomn" aria-label="עמוד הבא" aria-disabled="false" data-nagish="pagination-item-link" href="/realestate/rent?page=2"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="link_icon__qM0QO"><path d="M15.014 17.884a.75.75 0 01-.98 1.13l-.084-.073-6.137-6.18a.75.75 0 01-.069-.977l.073-.083 6.145-6.103a.75.75 0 011.13.98l-.073.085-5.613 5.573 5.608 5.648z" fill="currentColor"></path></svg></a>')
+        # following the specific apartments links to get the description + yielding items to the pipeline
+        for i, apt_url in enumerate(apt_urls):
+            yield response.follow(apt_url, callback=self.parse_description, meta={'scraping_cfg': scraping_cfg, 'index': i})
+
+        # pagination
         next_page = f'https://www.yad2.co.il/realestate/rent?page={str(ApartmentsSpider.page_number)}'
-
-        # # todo: decide if to scrape all 1000+ pages or limit
-        if ApartmentsSpider.page_number <= 3:
+        # todo: change pages num
+        if ApartmentsSpider.page_number <= 1000:
+            # todo: issue that getting low number of apartments (for 50 pages only 200 apartments instead of 2000)
             ApartmentsSpider.page_number += 1
-            yield response.follow(next_page, callback=self.parse)
+            yield response.follow(next_page, callback=self.parse)  # follow the next page
+
+    def parse_description(self, response: Response):
+        """
+        parsing the description of the apartment + yielding the items to the pipeline
+        :param response: the response from the website
+        :return:
+        """
+        cfg = response.meta['scraping_cfg']
+        index = response.meta['index']
+        description = response.xpath(cfg['xPaths']['description']).extract()
+        if description:
+            description = re.search(r'<p class="description_description__l3oun">(.*?)</p>', description[0], re.DOTALL)
+            description = description.group(1).replace("\n", '') if description else ''
+        else:
+            description = ''
+        self.descriptions[index] = description
+        self.pending_requests -= 1
+
+        if self.pending_requests == 0:
+            self.items['description'] = self.descriptions
+            time.sleep(random.randint(3, 5))
+            yield self.items  # yield the items to the pipeline
