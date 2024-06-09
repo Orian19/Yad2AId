@@ -36,17 +36,14 @@ class AidserverPipeline:
                 Name TEXT UNIQUE
                 )""")
 
-        # self.cursor.execute("""CREATE TABLE IF NOT EXISTS Cities(
-        #                 CityId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #                 City TEXT UNIQUE
-        # )""")
-        # add to apartments table instead of city TEXT
-        # CityId INTEGER,
-        # FOREIGN KEY (CityId) REFERENCES Cities (CityId)
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Cities(
+                        CityId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        CityName TEXT UNIQUE
+        )""")
 
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Apartments(
                         ApartmentId INTEGER PRIMARY KEY AUTOINCREMENT,
-                        City TEXT,
+                        CityId INTEGER,
                         Price INTEGER,
                         Address TEXT UNIQUE,
                         Rooms INTEGER,
@@ -56,7 +53,8 @@ class AidserverPipeline:
                         Image TEXT,
                         PaidAd BOOLEAN DEFAULT FALSE,
                         Url TEXT,
-                        Embedding array
+                        Embedding array,
+                        FOREIGN KEY (CityId) REFERENCES Cities(CityId)
                         )""")
 
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserLikedApartments(
@@ -122,6 +120,20 @@ class AidserverPipeline:
         min_key = min(lengths, key=lengths.get)
         return lengths[min_key], min_key
 
+    def get_or_create_city(self, city_name):
+        """
+        get or create city in the database
+        :param city_name:
+        :return: city id
+        """
+        self.cursor.execute("SELECT CityId FROM Cities WHERE CityName = ?", (city_name,))
+        result = self.cursor.fetchone()
+        if result:  # city exists
+            return result[0]
+        else:  # city does not exist
+            self.cursor.execute("INSERT INTO Cities (CityName) VALUES (?)", (city_name,))
+            return self.cursor.lastrowid
+
     def store_item(self, item):
         self.cursor.execute("""INSERT OR IGNORE INTO Users (Name) VALUES (?)""", (
             "Orian",
@@ -133,9 +145,11 @@ class AidserverPipeline:
             try:
                 if item.get('description')[i] == []:
                     item.get('description')[i] = ''
+
+                city_id = self.get_or_create_city(item.get('city')[i])
                 self.cursor.execute(
-                    """INSERT OR IGNORE INTO Apartments (City, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""", (
-                        item.get('city')[i],
+                    """INSERT OR IGNORE INTO Apartments (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""", (
+                        city_id,
                         item.get('price')[i],
                         item.get('address')[i],
                         item.get('rooms')[i],

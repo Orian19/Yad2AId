@@ -146,4 +146,3 @@ class ApartmentsSpider(scrapy.Spider):
             self.items['description'] = self.descriptions
             time.sleep(random.randint(3, 5))
             yield self.items  # yield the items to the pipeline
-
