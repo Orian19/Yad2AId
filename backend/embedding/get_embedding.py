@@ -1,14 +1,12 @@
 from googletrans import Translator
 import openai
-
 from dotenv import load_dotenv
 import numpy as np
 import os
 
 # load API key
 load_dotenv()
-openai.api_key = os.getenv("API_KEY")
-
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def translate_to_english(text: str) -> str:
     if not text:
