@@ -62,7 +62,7 @@ vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
 X_tfidf = vectorizer.fit_transform(df['Description'])
 
 
-exclude_terms = {'apartment', 'room', 'rent', 'nis', 'tel', 'aviv', 'rooms','close','floor'}
+exclude_terms = {'sqm', 'apartment', 'room', 'rent', 'nis', 'tel', 'aviv', 'rooms','close','floor'}
 
 # Get top terms for each cluster, excluding specific terms
 n_terms = 5

@@ -1,8 +1,7 @@
-
 import numpy as np
 import tkinter as tk
 from tkinter import scrolledtext
-from backend.embedding.plot import fetch_ids_and_embeddings
+from backend.embedding.cities_n_plot import fetch_ids_and_embeddings
 
 def find_nearest_neighbors(ids_embeddings):
     """Find the nearest neighbor for each apartment's pre-fetched embedding."""
