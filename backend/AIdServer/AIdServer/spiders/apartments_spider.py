@@ -119,7 +119,6 @@ class ApartmentsSpider(scrapy.Spider):
 
         # pagination
         next_page = f'https://www.yad2.co.il/realestate/rent?page={str(ApartmentsSpider.page_number)}'
-        # todo: change pages num
         if ApartmentsSpider.page_number <= 1000:
             # todo: issue that getting low number of apartments (for 50 pages only 200 apartments instead of 2000)
             ApartmentsSpider.page_number += 1

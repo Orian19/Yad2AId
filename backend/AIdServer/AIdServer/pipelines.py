@@ -2,6 +2,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+from datetime import datetime
 
 from utils.db_utils import create_connection
 
@@ -43,6 +44,8 @@ class AidserverPipeline:
                         PaidAd BOOLEAN DEFAULT FALSE,
                         Url TEXT,
                         Embedding array,
+                        DescriptionEnglish TEXT,
+                        LastUpdated Date,
                         FOREIGN KEY (CityId) REFERENCES Cities(CityId)
                         )""")
 
@@ -114,8 +117,11 @@ class AidserverPipeline:
                     item.get('description')[i] = ''
 
                 city_id = self.get_or_create_city(item.get('city')[i])
+                current_date = datetime.now().strftime("%Y-%m-%d")
                 self.cursor.execute(
-                    """INSERT OR IGNORE INTO Apartments (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url) VALUES (?,?,?,?,?,?,?,?,?)""",
+                    """INSERT OR IGNORE INTO Apartments 
+                    (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url, LastUpdated) VALUES 
+                    (?, ?,?,?,?,?,?,?,?,?)""",
                     (
                         city_id,
                         item.get('price')[i],
@@ -126,7 +132,8 @@ class AidserverPipeline:
                         item.get('description')[i],
                         item.get('image')[i],
                         # item.get('paid_ad')[i],
-                        item.get('url')[i]
+                        item.get('url')[i],
+                        current_date
                     ))
             except Exception as e:
                 self.connection.commit()
