@@ -9,6 +9,7 @@ from scrapy.http import Response
 from scrapy.utils.response import open_in_browser
 
 from ..items import AidserverItem
+from utils.config import load_config
 
 
 class ApartmentsSpider(scrapy.Spider):
@@ -16,20 +17,9 @@ class ApartmentsSpider(scrapy.Spider):
     start_urls = {
         r'https://www.yad2.co.il/realestate/rent'
     }
+    scraping_cfg = load_config()
     page_number = 2  # pagination
-    descriptions = []
-    pending_requests = 0
     items = None
-
-    @staticmethod
-    def load_config(cfg_file=r'scraping_cfg.json'):
-        """
-        loading the json config
-        :param cfg_file:
-        :return:
-        """
-        with open(cfg_file) as config_file:
-            return json.load(config_file)
 
     @staticmethod
     def parse_rooms_floor_sqm(values):
@@ -81,23 +71,22 @@ class ApartmentsSpider(scrapy.Spider):
         if 'Shield' in str(response.body):  # or 'Secure' in str(response.certificate):
             raise Exception("Shield detected, exiting...")
 
-        scraping_cfg = self.load_config()
         self.items = AidserverItem()
 
         # scraping all the relevant items
-        price = response.xpath(scraping_cfg['xPaths']['price']).extract()
+        price = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['price']).extract()
         price = [int(re.search(r'\d+,\d+', html).group().replace(',', '')) if re.search(r'\d+,\d+', html) else -1 for html in price]
-        city = response.xpath(scraping_cfg['xPaths']['city']).extract()
+        city = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['city']).extract()
         city = [re.search(r'>([^<]+)<', html).group(1).split(',')[-1] if re.search(r'>([^<]+)<', html) else '' for html in city]
-        address = response.xpath(scraping_cfg['xPaths']['address']).extract()
+        address = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['address']).extract()
         address = [re.search(r'>([^<]+)<', html).group(1) if re.search(r'>([^<]+)<', html) else '' for html in address]
-        rooms_floor_sqm = response.xpath(scraping_cfg['xPaths']['rooms_floor_sqm']).extract()
+        rooms_floor_sqm = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['rooms_floor_sqm']).extract()
         rooms, floor, sqm = self.parse_rooms_floor_sqm(rooms_floor_sqm)
-        image = response.xpath(scraping_cfg['xPaths']['image']).extract()
+        image = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['image']).extract()
         image = [re.search(r'src="([^"]+)"', html).group(1) if re.search(r'src="([^"]+)"', html) else '' for html in image]
-        # paid_ad = response.xpath(scraping_cfg['xPaths']['paid_ad']).extract()
+        # paid_ad = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['paid_ad']).extract()
         # paid_ad = [True if re.search(r'>([^<]+)<', html).group(1) else False for html in paid_ad]
-        apt_urls = response.xpath(scraping_cfg['xPaths']['apt_href']).extract()
+        apt_urls = response.xpath(ApartmentsSpider.scraping_cfg['xPaths']['apt_href']).extract()
         apt_urls = [re.search(r'href="([^"]+)"', html).group(1) if re.search(r'href="([^"]+)"', html) else '' for html in apt_urls]
 
         self.items['price'] = price
@@ -108,40 +97,12 @@ class ApartmentsSpider(scrapy.Spider):
         self.items['sqm'] = sqm
         self.items['image'] = image
         # self.items['paid_ad'] = paid_ad
-        self.items['url'] = [scraping_cfg['urls']['apt_start_url'] + apt for apt in apt_urls]
-        self.descriptions = [''] * len(apt_urls)
+        self.items['url'] = [ApartmentsSpider.scraping_cfg['urls']['apt_start_url'] + apt for apt in apt_urls]
 
-        self.pending_requests = len(apt_urls)
-
-        # following the specific apartments links to get the description + yielding items to the pipeline
-        for i, apt_url in enumerate(apt_urls):
-            yield response.follow(apt_url, callback=self.parse_description, meta={'scraping_cfg': scraping_cfg, 'index': i})
+        yield self.items  # yield the items to the pipeline
 
         # pagination
         next_page = f'https://www.yad2.co.il/realestate/rent?page={str(ApartmentsSpider.page_number)}'
         if ApartmentsSpider.page_number <= 1000:
-            # todo: issue that getting low number of apartments (for 50 pages only 200 apartments instead of 2000)
             ApartmentsSpider.page_number += 1
             yield response.follow(next_page, callback=self.parse)  # follow the next page
-
-    def parse_description(self, response: Response):
-        """
-        parsing the description of the apartment + yielding the items to the pipeline
-        :param response: the response from the website
-        :return:
-        """
-        cfg = response.meta['scraping_cfg']
-        index = response.meta['index']
-        description = response.xpath(cfg['xPaths']['description']).extract()
-        if description:
-            description = re.search(r'<p class="description_description__l3oun">(.*?)</p>', description[0], re.DOTALL)
-            description = description.group(1).replace("\n", '') if description else ''
-        else:
-            description = ''
-        self.descriptions[index] = description
-        self.pending_requests -= 1
-
-        if self.pending_requests == 0:
-            self.items['description'] = self.descriptions
-            time.sleep(random.randint(3, 5))
-            yield self.items  # yield the items to the pipeline

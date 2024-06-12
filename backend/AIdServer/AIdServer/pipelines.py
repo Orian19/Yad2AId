@@ -82,7 +82,7 @@ class AidserverPipeline:
         """
         find the shortest list length in the item
         :param item:
-        :param key:
+        :param keys:
         :return:
         """
         lengths = {k: len(item.get(k)) for k in keys}
@@ -104,55 +104,62 @@ class AidserverPipeline:
             return self.cursor.lastrowid
 
     def store_item(self, item):
-        self.cursor.execute("""INSERT OR IGNORE INTO Users (Name) VALUES (?)""", (
-            "Orian",
-        ))
+        if item.get('description'):  # update the description
+            self.cursor.execute("""
+            UPDATE Apartments
+            SET Description = ?
+            WHERE Url = ? AND (Description IS NULL OR Description = '')
+            """, (item.get('description'), item.get('url')))
+        else:  # insert the item (apartment)
+            self.cursor.execute("""INSERT OR IGNORE INTO Users (Name) VALUES (?)""", (
+                "Orian",
+            ))
 
-        min_len, key = self.find_shortest_list_length(item, ['city', 'price', 'address', 'rooms', 'floor', 'sqm',
-                                                             'description', 'image', 'url'])
+            min_len, key = self.find_shortest_list_length(item,
+                                            ['city', 'price', 'address', 'rooms', 'floor', 'sqm', 'image', 'url'])
 
-        for i in range(min_len):
-            try:
-                if item.get('description')[i] == []:
-                    item.get('description')[i] = ''
+            for i in range(min_len):
+                try:
+                    # if item.get('description')[i] == []:
+                    #     item.get('description')[i] = ''
 
-                city_id = self.get_or_create_city(item.get('city')[i])
-                current_date = datetime.now().strftime("%Y-%m-%d")
-                self.cursor.execute(
-                    """INSERT OR IGNORE INTO Apartments 
-                    (CityId, Price, Address, Rooms, Floor, SQM, Description, Image, Url, LastUpdated) VALUES 
-                    (?, ?,?,?,?,?,?,?,?,?)""",
-                    (
-                        city_id,
-                        item.get('price')[i],
-                        item.get('address')[i],
-                        item.get('rooms')[i],
-                        item.get('floor')[i],
-                        item.get('sqm')[i],
-                        item.get('description')[i],
-                        item.get('image')[i],
-                        # item.get('paid_ad')[i],
-                        item.get('url')[i],
-                        current_date
-                    ))
-            except Exception as e:
-                self.connection.commit()
-                print(key)
-                print(e)
+                    city_id = self.get_or_create_city(item.get('city')[i])
+                    current_date = datetime.now().strftime("%Y-%m-%d")
+                    self.cursor.execute(
+                        """INSERT OR IGNORE INTO Apartments 
+                        (CityId, Price, Address, Rooms, Floor, SQM, Image, Url, LastUpdated) VALUES 
+                        (?, ?,?,?,?,?,?,?,?)""",
+                        (
+                            city_id,
+                            item.get('price')[i],
+                            item.get('address')[i],
+                            item.get('rooms')[i],
+                            item.get('floor')[i],
+                            item.get('sqm')[i],
+                            # item.get('description')[i],
+                            item.get('image')[i],
+                            # item.get('paid_ad')[i],
+                            item.get('url')[i],
+                            current_date
+                        ))
+                except Exception as e:
+                    self.connection.commit()
+                    print(key)
+                    print(e)
 
-        # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
-        #     0,
-        #     0
-        # ))
-        #
-        # self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
-        #     0,
-        #     0
-        # ))
-        #
-        # self.cursor.execute("""INSERT INTO UserSeenApartments (UserId, ApartmentId) VALUES (?,?)""", (
-        #     0,
-        #     0
-        # ))
+            # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+            #     0,
+            #     0
+            # ))
+            #
+            # self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
+            #     0,
+            #     0
+            # ))
+            #
+            # self.cursor.execute("""INSERT INTO UserSeenApartments (UserId, ApartmentId) VALUES (?,?)""", (
+            #     0,
+            #     0
+            # ))
 
         self.connection.commit()

@@ -31,6 +31,10 @@ def convert_array(text):
 
 
 def create_connection():
+    """
+    create a connection to the SQLite database
+    return: connection and cursor
+    """
     # register the adapter and converter for numpy array
     sqlite3.register_adapter(np.ndarray, adapt_array)
     sqlite3.register_converter("array", convert_array)
@@ -39,3 +43,15 @@ def create_connection():
     cursor = connection.cursor()
 
     return connection, cursor
+
+
+def get_apt_urls():
+    """
+    get all the apartment urls from the database
+    return: list of urls
+    """
+    con, cur = create_connection()
+    cur.execute("SELECT Url FROM Apartments WHERE description IS NULL OR description = ''")
+    urls = cur.fetchall()
+    con.close()
+    return [url[0] for url in urls]  # because each URL is returned is a tuple
