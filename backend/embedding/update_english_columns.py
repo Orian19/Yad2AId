@@ -1,6 +1,5 @@
 from backend.embedding.create_embedding import translate_to_english
 from backend.utils.db_utils import create_connection
-import sqlite3
 
 def update_english_city_names_column(con, cur):
     
@@ -26,18 +25,23 @@ def update_english_description_column(conn, cursor):
     # Fetch descriptions that need translation
     cursor.execute('''
         SELECT ApartmentId, Description FROM Apartments
-        WHERE DescriptionEnglish IS NULL OR DescriptionEnglish = '';
+        WHERE Description != 'empty' AND DescriptionEnglish IS NULL OR DescriptionEnglish = '';
     ''')
     apartments = cursor.fetchall()
     
+    count = 0
     # Translate descriptions and update the database
     for apartment_id, description in apartments:
+        if count >= 3000:
+            break
         english_description = translate_to_english(description)
+        print(f"updating english of apartmetn {apartment_id}")
         cursor.execute('''
             UPDATE Apartments
             SET DescriptionEnglish = ?
             WHERE ApartmentId = ?;
         ''', (english_description, apartment_id))
+        count += 1
     
     # Commit changes and close the connection
     conn.commit()
@@ -45,6 +49,6 @@ def update_english_description_column(conn, cursor):
 
 # Example usage
 con, cur = create_connection()
-#update_english_description_column(con, cur)
+update_english_description_column(con, cur)
 #update_english_city_names_column(con, cur)
 con.close()

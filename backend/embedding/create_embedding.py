@@ -28,7 +28,6 @@ def normalize_l2(x):
 
 def get_embedding(text, model="text-embedding-ada-002"):
     """Fetch and normalize the embedding for a given text."""
-    translated_text = translate_to_english(text)
-    response = openai.Embedding.create(input=translated_text, model=model)
+    response = openai.Embedding.create(input=text, model=model)
     embedding = response['data'][0]['embedding']
     return normalize_l2(embedding)
