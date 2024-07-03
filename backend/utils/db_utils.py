@@ -55,3 +55,14 @@ def get_apt_urls():
     urls = cur.fetchall()
     con.close()
     return [url[0] for url in urls]  # because each URL is returned is a tuple
+
+
+def remove_apt_by_url(apartment_url):
+    """
+    remove apartment by its url
+    :param apartment_url: the url of the apartment
+    """
+    con, cur = create_connection()
+    cur.execute("DELETE FROM Apartments WHERE Url = ?", (apartment_url,))
+    con.commit()
+    con.close()

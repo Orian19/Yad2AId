@@ -7,7 +7,7 @@ from scrapy.utils.response import open_in_browser
 
 from ..items import AidserverItem
 from utils.config import load_config
-from utils.db_utils import get_apt_urls
+from utils.db_utils import get_apt_urls, remove_apt_by_url
 
 
 class DescriptionsSpider(scrapy.Spider):
@@ -18,7 +18,7 @@ class DescriptionsSpider(scrapy.Spider):
     }
     scraping_cfg = load_config()
     custom_settings = {
-        'HTTPERROR_ALLOWED_CODES': [404],
+        'HTTPERROR_ALLOWED_CODES': [404, 500, 302],
     }
     items = None
 
@@ -29,11 +29,13 @@ class DescriptionsSpider(scrapy.Spider):
         :param kwargs: additional arguments
         :return:
         """
-        if response.status == 404:
-            self.logger.error(f'Received 404 at {response.url}')
-            DescriptionsSpider.apt_urls.pop(0)
+        if response.status in [404, 500]:  # page not found, internal server error
+            self.logger.error(f'Received 404 or 500 at {response.url}')
+            remove_apt_by_url(DescriptionsSpider.apt_urls.pop(0))
             yield response.follow(DescriptionsSpider.apt_urls[0], callback=self.parse)
-
+        elif response.status == 302:  # redirect
+            self.logger.error(f'Received 302 at {response.url}')
+            yield response.follow(DescriptionsSpider.apt_urls[0], callback=self.parse)
         else:
             # open_in_browser(response)  # for debugging purposes
 

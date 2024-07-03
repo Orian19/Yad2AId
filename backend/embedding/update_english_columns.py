@@ -1,6 +1,33 @@
-from backend.embedding.create_embedding import translate_to_english
+from googletrans import Translator
 from backend.utils.db_utils import create_connection
-import sqlite3
+import logging
+
+
+# Setup basic logging
+logging.basicConfig(level=logging.INFO)
+
+def translate_to_english(text: str) -> str:
+    if not text:
+        return ""  # Return empty string if input is empty
+
+    translator = Translator()
+    try:
+        # Automatically detect the source language and translate to English
+        translation = translator.translate(text, dest='en')
+        return translation.text
+    except Exception as e:
+        logging.error(f"Failed to translate text: {text[:30]}... Error: {str(e)}")
+        return text  # Return original text on failure
+    
+def translate_to_english(text: str) -> str:
+    if not text:
+        return ""  # Return empty string if input is empty
+
+    translator = Translator()
+    # Automatically detect the source language and translate to English
+    translation = translator.translate(text, dest='en')
+    # Return only the translated text
+    return translation.text
 
 def update_english_city_names_column(con, cur):
     
@@ -21,30 +48,38 @@ def update_english_city_names_column(con, cur):
     con.commit()
     print("City names updated successfully.")
     
+    
 def update_english_description_column(conn, cursor):
 
     # Fetch descriptions that need translation
     cursor.execute('''
         SELECT ApartmentId, Description FROM Apartments
-        WHERE DescriptionEnglish IS NULL OR DescriptionEnglish = '';
+        WHERE Description != 'empty' AND (DescriptionEnglish IS NULL OR DescriptionEnglish = '');
     ''')
     apartments = cursor.fetchall()
     
+    count = 0
     # Translate descriptions and update the database
     for apartment_id, description in apartments:
-        english_description = translate_to_english(description)
-        cursor.execute('''
-            UPDATE Apartments
-            SET DescriptionEnglish = ?
-            WHERE ApartmentId = ?;
-        ''', (english_description, apartment_id))
+        if count >= 1000:
+            break
+        try:
+            english_description = translate_to_english(description)
+            cursor.execute('''
+                UPDATE Apartments
+                SET DescriptionEnglish = ?
+                WHERE ApartmentId = ?;
+            ''', (english_description, apartment_id))
+            count += 1
+        except Exception as e:
+            logging.error(f"Database update failed for ApartmentId {apartment_id}: {str(e)}")
     
-    # Commit changes and close the connection
+    # Commit changes
     conn.commit()
-    print("English descriptions updated successfully.")
-
+    logging.info("English descriptions updated successfully.")
+    
 # Example usage
 con, cur = create_connection()
-#update_english_description_column(con, cur)
+update_english_description_column(con, cur)
 #update_english_city_names_column(con, cur)
 con.close()
