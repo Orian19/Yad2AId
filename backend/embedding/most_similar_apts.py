@@ -1,28 +1,93 @@
+import random
+import numpy as np
+from backend.utils.db_utils import create_connection
+from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-from embedding.cities_n_plot import fetch_ids_and_embeddings
+def liked_vectors():
+    """Fetches apartment IDs and pre-calculated embedding from the liked apartments SQLite database."""
+    con, cur = create_connection()
+    cur.execute("""
+        SELECT ApartmentId, Embedding 
+        FROM UserLikedApartments  
+        WHERE Embedding IS NOT NULL
+    """)
+    result = cur.fetchall()
+    ids_embeddings = []
+    expected_shape = None
+
+    for row in result:
+        apartment_id, embedding = row[0], row[1]
+        if embedding is None:
+            print(f"Warning: Embedding for Apartment ID {apartment_id} is None")
+            continue
+        if expected_shape is None:
+            expected_shape = embedding.shape
+        if embedding.shape == expected_shape:
+            ids_embeddings.append((apartment_id, embedding))
+        else:
+            print(f"Warning: Embedding shape {embedding.shape} for Apartment ID {apartment_id} does not match expected {expected_shape}")
+    con.close()
+    return ids_embeddings
 
 
-def find_nearest_neighbors(liked_ids_embeddings=fetch_ids_and_embeddings()):
+def fetch_target_apt(target_ids: list, liked_apts: list):
+    """Fetches apartment IDs and pre-calculated embedding from the potential apartments SQLite database 
+    for given list of target IDs, excluding those already liked."""
+    con, cur = create_connection()
+    
+    # Extract apartment IDs from liked_apts
+    liked_ids = {apt[0] for apt in liked_apts}  
+    
+    # Filter target_ids to remove any that are in liked_apts
+    filtered_target_ids = [id for id in target_ids if id not in liked_ids]
+    
+    # Convert the filtered list of IDs to a format that can be used in a SQL query
+    ids_tuple = tuple(filtered_target_ids)
+    
+    # Execute the SQL query only if the filtered_target_ids list is not empty
+    if ids_tuple:
+        query = f"""
+            SELECT ApartmentId, Embedding 
+            FROM Apartments
+            WHERE ApartmentId IN {ids_tuple} AND Embedding IS NOT NULL
+        """
+        cur.execute(query)
+        result = cur.fetchall()
+    else:
+        result = []
+
+    ids_embeddings = [(row[0], row[1]) for row in result]
+    con.close()
+    return ids_embeddings
+
+def most_similar_apts(target_ids: list):
     """
-    Find the nearest neighbor for each apartment's pre-fetched embedding.
-    :param liked_ids_embeddings: List of tuples containing apartment ID, city name, and embedding
-    :return: Dictionary of apartment ID to nearest neighbor's apartment ID
+    Finds the most similar apartment from a list of target apartment IDs based on the centroid of liked apartment embeddings.
     """
-    apartment_id, city_name, embedding = zip(*liked_ids_embeddings)
-    embeddings = np.array(embedding)
+    liked_ids_embeddings = liked_vectors()
+    if not liked_ids_embeddings:
+        # Return a random apartment ID from the target_ids list
+        if not target_ids:
+            return None, "No target apartments available."
+        random_id = random.choice(target_ids)
+        return random_id, "Random apartment ID returned due to no liked apartments available."
 
-    # Compute cosine similarity matrix (since embeddings are normalized, this can be done using dot product)
-    similarity_matrix = np.dot(embeddings, embeddings.T)
-    np.fill_diagonal(similarity_matrix, -np.inf)  # to ignore self-similarity
+    # Compute the centroid of the liked apartment embeddings
+    embeddings = np.array([embedding for _, embedding in liked_ids_embeddings])
+    centroid = np.mean(embeddings, axis=0).reshape(1, -1)
 
-    # Find the index of the maximum similarity for each embedding (excluding self)
-    nearest_indices = np.argmax(similarity_matrix, axis=1)
-    nearest_ids = [apartment_id[idx] for idx in nearest_indices]
+    # Fetch embeddings of target apartments
+    target_embeddings = fetch_target_apt(target_ids,liked_ids_embeddings)
+    if not target_embeddings:
+        return None, "No target apartments available."
 
-    return dict(zip(apartment_id, nearest_ids))
+    # Calculate similarity of each target embedding to the centroid
+    target_data = np.array([embedding for _, embedding in target_embeddings])
+    similarities = cosine_similarity(target_data, centroid).flatten()
 
-
-# example
-# ids_embeddings = fetch_ids_and_embeddings()
-# nearest_neighbors = find_nearest_neighbors(ids_embeddings)
+    # Find the index of the maximum similarity
+    max_index = np.argmax(similarities)
+    most_similar_id = target_embeddings[max_index][0]
+    
+    return most_similar_id, "Apartment found successfully."
