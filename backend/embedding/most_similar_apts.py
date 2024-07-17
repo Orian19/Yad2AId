@@ -2,9 +2,8 @@ import random
 import numpy as np
 from backend.utils.db_utils import create_connection
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
-def liked_vectors():
+def fetch_liked_apts():
     """Fetches apartment IDs and pre-calculated embedding from the liked apartments SQLite database."""
     con, cur = create_connection()
     cur.execute("""
@@ -65,29 +64,32 @@ def most_similar_apts(target_ids: list):
     """
     Finds the most similar apartment from a list of target apartment IDs based on the centroid of liked apartment embeddings.
     """
-    liked_ids_embeddings = liked_vectors()
-    if not liked_ids_embeddings:
-        # Return a random apartment ID from the target_ids list
-        if not target_ids:
+    try:
+        liked_ids_embeddings = fetch_liked_apts()
+        if not liked_ids_embeddings:
+            # Return a random apartment ID from the target_ids list
+            if not target_ids:
+                return None, "No target apartments available."
+            random_id = random.choice(target_ids)
+            return random_id, "Random apartment ID returned due to no liked apartments available."
+
+        # Compute the centroid of the liked apartment embeddings
+        embeddings = np.array([embedding for _, embedding in liked_ids_embeddings])
+        centroid = np.mean(embeddings, axis=0).reshape(1, -1)
+
+        # Fetch embeddings of target apartments
+        target_embeddings = fetch_target_apt(target_ids,liked_ids_embeddings)
+        if not target_embeddings:
             return None, "No target apartments available."
-        random_id = random.choice(target_ids)
-        return random_id, "Random apartment ID returned due to no liked apartments available."
 
-    # Compute the centroid of the liked apartment embeddings
-    embeddings = np.array([embedding for _, embedding in liked_ids_embeddings])
-    centroid = np.mean(embeddings, axis=0).reshape(1, -1)
+        # Calculate similarity of each target embedding to the centroid
+        target_data = np.array([embedding for _, embedding in target_embeddings])
+        similarities = cosine_similarity(target_data, centroid).flatten()
 
-    # Fetch embeddings of target apartments
-    target_embeddings = fetch_target_apt(target_ids,liked_ids_embeddings)
-    if not target_embeddings:
-        return None, "No target apartments available."
-
-    # Calculate similarity of each target embedding to the centroid
-    target_data = np.array([embedding for _, embedding in target_embeddings])
-    similarities = cosine_similarity(target_data, centroid).flatten()
-
-    # Find the index of the maximum similarity
-    max_index = np.argmax(similarities)
-    most_similar_id = target_embeddings[max_index][0]
+        # Find the index of the maximum similarity
+        max_index = np.argmax(similarities)
+        most_similar_id = target_embeddings[max_index][0]
     
-    return most_similar_id, "Apartment found successfully."
+        return most_similar_id, "Apartment found successfully."
+    except Exception as e:
+        return None, f"An error occurred: {str(e)}"

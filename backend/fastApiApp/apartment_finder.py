@@ -11,6 +11,7 @@ from schemas import Swipe, User, AptFilter
 from utils.db_utils import create_connection
 
 
+
 app = FastAPI()
 
 allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:3000')
