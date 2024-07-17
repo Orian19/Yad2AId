@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',
-  };
-  
-  export default nextConfig;
-  
+  output: 'export',
+  reactStrictMode: true,
+  pageExtensions: ['js', 'jsx'],
+};
+
+export default nextConfig;

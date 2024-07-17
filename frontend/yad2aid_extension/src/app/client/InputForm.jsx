@@ -1,7 +1,7 @@
 'use client';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { SendRequest } from '../server/SendRequest.js'
+//import { SendRequest } from '../server/SendRequest.js';
 
 export default function InputForm() {
   const [squareMeters, setSquareMeters] = useState('');
@@ -14,10 +14,20 @@ export default function InputForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await SendRequest(squareMeters, maxPrice, numRooms, city);
-      console.log(response);
-      setResults(Array.isArray(response) ? response : []);
-      router.push('/results'); // Redirect to the results page
+      //const response = await SendRequest(squareMeters, maxPrice, numRooms, city);
+      //console.log(response);
+      //const formattedResults = Array.isArray(response) ? response : [];
+      //setResults(formattedResults);
+
+      //ONLY TO CHECK pages before connecting to backend 
+      const formResults = [
+        { squareMeters, maxPrice, numRooms, city }
+      ];
+      setResults(formResults);
+
+      // Redirect to the results page with the results as a query parameter
+      const queryString = new URLSearchParams({ results: JSON.stringify(formResults) }).toString();
+      router.push(`/results?${queryString}`);
     } catch (error) {
       console.error('Error:', error);
     }
