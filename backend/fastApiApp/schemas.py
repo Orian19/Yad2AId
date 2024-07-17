@@ -32,7 +32,6 @@ class AptFilter(BaseModel):
     city: str = Field(..., description="city")
     sqm: int = Field(..., description="size of the apartment in SQM")
     rooms: int = Field(..., description="number of rooms")
-    floor: int = Field(..., description="floor number")
     # elevator: bool = Field(..., description="elevator in the building")
     # parking: bool = Field(..., description="parking in the building")
     # balcony: bool = Field(..., description="balcony in the apartment")

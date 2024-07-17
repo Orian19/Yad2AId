@@ -10,7 +10,6 @@ import uvicorn
 from schemas import Swipe, User, AptFilter
 from utils.db_utils import create_connection
 
-
 app = FastAPI()
 
 allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:3000')
@@ -27,12 +26,53 @@ class AptFinder:
     def __init__(self):
         self.connection, self.cursor = create_connection()
 
-    def filter_apts(self,user:User, apt_filter: AptFilter):
+    def filter_apts(self, user: User, apt_filter: AptFilter):
         """
         filter apartments by price, location, etc. from the db
         :return: list of relevant apartments - never seen before + not swiped left on
         """
-        pass
+        # extract user's preferences
+        params = (user.user_name, apt_filter.city, apt_filter.price, apt_filter.sqm, apt_filter.rooms,
+                  user.user_name, user.user_name)
+
+        query = f"""
+                SELECT a.ApartmentId
+                FROM apartments a
+                JOIN Cities c ON a.CityId = c.CityId
+                JOIN Users u ON u.UserId = (
+                    SELECT u1.UserId 
+                    FROM Users u1 
+                    WHERE u1.Name = ?
+                )
+                WHERE c.CityName = ?
+                AND a.Price >= ?
+                AND a.SQM >= ?
+                AND a.Rooms = ?
+                AND a.ApartmentId NOT IN (
+                    SELECT uda.ApartmentId
+                    FROM UserDislikedApartments uda
+                    WHERE uda.UserId = (
+                        SELECT u2.UserId 
+                        FROM Users u2 
+                        WHERE u2.Name = ?
+                    )
+                )
+                AND a.ApartmentId NOT IN (
+                    SELECT ula.ApartmentId
+                    FROM UserLikedApartments ula
+                    WHERE ula.UserId = (
+                        SELECT u3.UserId 
+                        FROM Users u3 
+                        WHERE u3.Name = ?
+                    )
+                )
+               """
+
+        # Execute the query
+        self.cursor.execute(query, params)
+        # Fetch the results
+        filtered_apts = self.cursor.fetchall()
+        return filtered_apts
 
     def find_best_apt_match(self, user: User, apt_filter: AptFilter, swipe: Swipe):
         """
@@ -42,7 +82,6 @@ class AptFinder:
         filtered_apts = self.filter_apts(user, apt_filter)
         if not filtered_apts:
             return None
-
 
         # self.get_trip_suggestions()
         #
