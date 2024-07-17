@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Yad2Aid",
+  "version": "1.0",
+  "description": "Adds a button to redirect to the Next.js app",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.yad2.co.il/realestate/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
