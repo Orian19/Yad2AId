@@ -1,7 +1,8 @@
 import random
 import numpy as np
-from backend.utils.db_utils import create_connection
+from utils.db_utils import create_connection
 from sklearn.metrics.pairwise import cosine_similarity
+
 
 def fetch_liked_apts():
     """Fetches apartment IDs and pre-calculated embedding from the liked apartments SQLite database."""
@@ -25,7 +26,8 @@ def fetch_liked_apts():
         if embedding.shape == expected_shape:
             ids_embeddings.append((apartment_id, embedding))
         else:
-            print(f"Warning: Embedding shape {embedding.shape} for Apartment ID {apartment_id} does not match expected {expected_shape}")
+            print(
+                f"Warning: Embedding shape {embedding.shape} for Apartment ID {apartment_id} does not match expected {expected_shape}")
     con.close()
     return ids_embeddings
 
@@ -34,16 +36,16 @@ def fetch_target_apt(target_ids: list, liked_apts: list):
     """Fetches apartment IDs and pre-calculated embedding from the potential apartments SQLite database 
     for given list of target IDs, excluding those already liked."""
     con, cur = create_connection()
-    
+
     # Extract apartment IDs from liked_apts
-    liked_ids = {apt[0] for apt in liked_apts}  
-    
+    liked_ids = {apt[0] for apt in liked_apts}
+
     # Filter target_ids to remove any that are in liked_apts
     filtered_target_ids = [id for id in target_ids if id not in liked_ids]
-    
+
     # Convert the filtered list of IDs to a format that can be used in a SQL query
     ids_tuple = tuple(filtered_target_ids)
-    
+
     # Execute the SQL query only if the filtered_target_ids list is not empty
     if ids_tuple:
         query = f"""
@@ -59,6 +61,7 @@ def fetch_target_apt(target_ids: list, liked_apts: list):
     ids_embeddings = [(row[0], row[1]) for row in result]
     con.close()
     return ids_embeddings
+
 
 def most_similar_apts(target_ids: list):
     """
@@ -78,7 +81,7 @@ def most_similar_apts(target_ids: list):
         centroid = np.mean(embeddings, axis=0).reshape(1, -1)
 
         # Fetch embeddings of target apartments
-        target_embeddings = fetch_target_apt(target_ids,liked_ids_embeddings)
+        target_embeddings = fetch_target_apt(target_ids, liked_ids_embeddings)
         if not target_embeddings:
             return None, "No target apartments available."
 
@@ -89,7 +92,7 @@ def most_similar_apts(target_ids: list):
         # Find the index of the maximum similarity
         max_index = np.argmax(similarities)
         most_similar_id = target_embeddings[max_index][0]
-    
+
         return most_similar_id, "Apartment found successfully."
     except Exception as e:
         return None, f"An error occurred: {str(e)}"

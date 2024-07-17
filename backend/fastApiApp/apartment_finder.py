@@ -9,10 +9,11 @@ import uvicorn
 
 from schemas import Swipe, User, AptFilter
 from utils.db_utils import create_connection
+from embedding.most_similar_apts import most_similar_apts
 
 app = FastAPI()
 
-allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:3000')
+allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:8000')
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[allowed_origin],
@@ -37,7 +38,7 @@ class AptFinder:
 
         query = f"""
                 SELECT a.ApartmentId
-                FROM apartments a
+                FROM Apartments a
                 JOIN Cities c ON a.CityId = c.CityId
                 JOIN Users u ON u.UserId = (
                     SELECT u1.UserId 
@@ -45,7 +46,7 @@ class AptFinder:
                     WHERE u1.Name = ?
                 )
                 WHERE c.CityName = ?
-                AND a.Price >= ?
+                AND a.Price <= ?
                 AND a.SQM >= ?
                 AND a.Rooms = ?
                 AND a.ApartmentId NOT IN (
@@ -82,6 +83,9 @@ class AptFinder:
         filtered_apts = self.filter_apts(user, apt_filter)
         if not filtered_apts:
             return None
+
+        best_match = most_similar_apts(filtered_apts)
+        return best_match
 
         # self.get_trip_suggestions()
         #
