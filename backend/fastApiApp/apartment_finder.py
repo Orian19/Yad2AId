@@ -30,7 +30,7 @@ class AptFinder:
     def filter_apts(self, user: User, apt_filter: AptFilter):
         """
         filter apartments by price, location, etc. from the db
-        :return: list of relevant apartments - never seen before + not swiped left on
+        :return: list of relevant apartments ids - never seen before + not swiped left on
         """
         # extract user's preferences
         params = (user.user_name, apt_filter.city, apt_filter.price, apt_filter.sqm, apt_filter.rooms,
@@ -73,6 +73,7 @@ class AptFinder:
         self.cursor.execute(query, params)
         # Fetch the results
         filtered_apts = self.cursor.fetchall()
+        filtered_apts = [apt_id[0] for apt_id in filtered_apts]
         return filtered_apts
 
     def find_best_apt_match(self, user: User, apt_filter: AptFilter, swipe: Swipe):
@@ -87,38 +88,8 @@ class AptFinder:
         best_match = most_similar_apts(filtered_apts)
         return best_match
 
-        # self.get_trip_suggestions()
-        #
-        # flights = {}  # cheapest
-        # hotels = {}  # most expensive (budget is after selecting the flight)
-        # for destination in self.possible_destinations:
-        #     cheapest_outbound_flight = self.get_outbound_flight(destination)
-        #     cheapest_inbound_flight = self.get_inbound_flight(destination)
-        #     cheapest_outbound_flight_price = cheapest_outbound_flight.get(next(iter(cheapest_outbound_flight)))['price']
-        #     cheapest_inbound_flight_price = cheapest_inbound_flight.get(next(iter(cheapest_inbound_flight)))['price']
-        #     total_cheapest_flight_price = cheapest_outbound_flight_price + cheapest_inbound_flight_price
-        #     if total_cheapest_flight_price >= self.budget:
-        #         print("\nYou can't afford a trip to any of the suggested locations\n")
-        #         exit()
-        #     flights.update(cheapest_outbound_flight)
-        #     flights.update({next(iter(cheapest_inbound_flight))+"_in": cheapest_inbound_flight.get(next(iter(cheapest_inbound_flight)))})
-        #
-        #     expensive_hotel = self.get_hotel(destination, self.duration, int(self.budget - total_cheapest_flight_price))
-        #     hotels.update(expensive_hotel)
-        #
-        #     # cheapest_flight_key = min(flights, key=lambda k: flights[k]['price'])
-        #     # most_expensive_hotel_key = max(hotels, key=lambda k: hotels[k]['prices'][0]['rate_per_night']['extracted_lowest'])
-        #     most_expensive_hotel_price = expensive_hotel.get(next(iter(
-        #         expensive_hotel)))['rate_per_night']['extracted_lowest']
-        #     total_cost = total_cheapest_flight_price + most_expensive_hotel_price * self.duration
-        #     self.travel_options.append({
-        #         "destination": destination,
-        #         "flight": [cheapest_outbound_flight, cheapest_inbound_flight],
-        #         "hotel": expensive_hotel,
-        #         "total_cost": total_cost,
-        #     })
 
-
+# TODO: comment for testing purposes
 apt = AptFinder()
 
 
@@ -137,10 +108,7 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
         raise HTTPException(status_code=404, detail="Data not found - Apartment")
     return best_match
 
-    # global apt
-    # apt = TripPlan()
-    # apt.get_user_trip_preferences(user_pref)
-    # apt.get_travel_options()
-    # if not apt.travel_options:
-    #     raise HTTPException(status_code=404, detail="Data not found - Trip Options")
-    # return apt.travel_options
+# TODO: uncomment for testing purposes
+# if __name__ == "__main__":
+#     apt = AptFinder()
+# print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right")))
