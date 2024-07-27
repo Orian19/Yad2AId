@@ -18,6 +18,7 @@ class Swipe(BaseModel):
     model_config = {
         "extra": "forbid",  # not allowing attributes that are not defined here to be sent from the client
     }
+    apt_id: int = Field(..., description="apartment id")
     swipe: str = Field(examples=[0, 1], description="swipe left or right")
 
 

@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from backend.utils.db_utils import create_connection
+from utils.db_utils import create_connection
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -28,6 +28,7 @@ def get_embedding_for_apartment(apt_id):
     finally:
         con.close()
 
+
 def fetch_liked_apts(user_id):
     """Fetches apartment IDs and pre-calculated embedding from the liked apartments SQLite database."""
     con, cur = create_connection()
@@ -42,7 +43,7 @@ def fetch_liked_apts(user_id):
 
     for row in result:
         apartment_id = row[0]
-        embedding = get_embedding_for_apartment(apartment_id)  
+        embedding = get_embedding_for_apartment(apartment_id)
         if embedding is None:
             print(f"Warning: Embedding for Apartment ID {apartment_id} is None")
             continue
@@ -86,10 +87,10 @@ def most_similar_apts(target_ids: list, user_id):
     Finds the most similar apartment from a list of target apartment IDs based on the centroid of liked apartment embeddings.
     """
     try:
-        #Handle edge case of only one apartment left with similar "dry" details
+        # Handle edge case of only one apartment left with similar "dry" details
         if len(target_ids) == 1:
             return target_ids[0]
-        
+
         liked_ids_embeddings = fetch_liked_apts(user_id)
         if not liked_ids_embeddings:
             # Return a random apartment ID from the target_ids list
@@ -97,7 +98,7 @@ def most_similar_apts(target_ids: list, user_id):
                 return None, "No target apartments available."
             random_id = random.choice(target_ids)
             return random_id, "Random apartment ID returned due to no liked apartments available."
-        
+
         # Compute the centroid of the liked apartment embeddings
         embeddings = np.array([embedding for _, embedding in liked_ids_embeddings])
         centroid = np.mean(embeddings, axis=0).reshape(1, -1)
@@ -118,5 +119,3 @@ def most_similar_apts(target_ids: list, user_id):
         return most_similar_id
     except Exception as e:
         return None, f"An error occurred: {str(e)}"
-
-
