@@ -8,8 +8,8 @@ from fastapi import FastAPI, HTTPException, Depends
 import uvicorn
 
 from schemas import Swipe, User, AptFilter
-from backend.utils.db_utils import create_connection
-from backend.embedding.most_similar_apts import most_similar_apts
+from utils.db_utils import create_connection
+from embedding.most_similar_apts import most_similar_apts
 
 app = FastAPI()
 
@@ -59,17 +59,15 @@ class AptFinder:
         user_id = self.cursor.fetchone()
         return user_id[0] if user_id else None
 
-    def update_user_swipe(self, user: User, apt_id: int, swipe: Swipe):
+    def update_user_swipe(self, user_id: int, apt_id: int, swipe: Swipe):
         """
         update the user's swipe in the db
         update the UserLikedApartments or UserDislikedApartments tables
-        :param user: user object
+        :param user_id: user object
         :param apt_id: apartment id
         :param swipe: swipe object
         :return None
         """
-        user_id = self.get_user_id(user.user_name)
-        
         if swipe.swipe == "right":
             query = f"""
                 INSERT INTO UserLikedApartments (UserId, ApartmentId)
@@ -143,19 +141,17 @@ class AptFinder:
         if not filtered_apts:
             return None
 
-        #get user id
-        user_id = self.get_user_id(user.user_name)
-        
         # get the most similar apartment id
+        user_id = self.get_user_id(user.user_name)
         best_match_id = most_similar_apts(filtered_apts, user_id)
 
         # update liked/disliked apartments
-        self.update_user_swipe(user, best_match_id, swipe)
+        self.update_user_swipe(user_id, swipe.apt_id, swipe)
 
         # get the url of the best match
         best_match = self.get_apt_url(best_match_id)
 
-        return best_match
+        return best_match, best_match_id
 
 
 # TODO: comment for testing purposes
@@ -172,12 +168,12 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     :return:
     """
     global apt
-    best_match = apt.find_best_apt_match(user, apt_filter, swipe)
+    best_match, best_match_id = apt.find_best_apt_match(user, apt_filter, swipe)
     if not best_match:
         raise HTTPException(status_code=404, detail="Data not found - Apartment")
-    return best_match
+    return best_match, best_match_id
 
 # TODO: uncomment for testing purposes
-if __name__ == "__main__":
-     apt = AptFinder()
-print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right")))
+# if __name__ == "__main__":
+#      apt = AptFinder()
+#     print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right")))
