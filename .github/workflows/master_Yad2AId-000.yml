@@ -26,6 +26,9 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
+
+      - name: Install Twisted
+        run: pip install twisted
       
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
