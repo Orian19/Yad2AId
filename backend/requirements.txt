@@ -22,7 +22,6 @@ fastapi==0.111.0
 fastapi-cli==0.0.4
 filelock==3.14.0
 fonttools==4.53.0
-googletrans==3.0.0
 h11==0.9.0
 h2==3.2.0
 hpack==3.0.0
