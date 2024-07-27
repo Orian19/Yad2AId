@@ -28,6 +28,51 @@ class AptFinder:
     def __init__(self):
         self.connection, self.cursor = create_connection()
 
+    def get_apt_url(self, apt_id: int):
+        """
+        get the url of the apartment
+        :param apt_id: apartment id
+        :return: url of the apartment
+        """
+        query = f"""
+            SELECT Url
+            FROM Apartments
+            WHERE ApartmentId = ?
+        """
+        self.cursor.execute(query, (apt_id,))
+        url = self.cursor.fetchone()
+
+        return url[0] if url else None
+
+    def update_user_swipe(self, user: User, apt_id: int, swipe: Swipe):
+        """
+        update the user's swipe in the db
+        update the UserLikedApartments or UserDislikedApartments tables
+        :param user: user object
+        :param apt_id: apartment id
+        :param swipe: swipe object
+        :return None
+        """
+        if swipe.swipe == "right":
+            query = f"""
+                INSERT INTO UserLikedApartments (UserId, ApartmentId)
+                VALUES (
+                    (SELECT UserId FROM Users WHERE Name = ?),
+                    ?
+                )
+            """
+        else:
+            query = f"""
+                INSERT INTO UserDislikedApartments (UserId, ApartmentId)
+                VALUES (
+                    (SELECT UserId FROM Users WHERE Name = ?),
+                    ?
+                )
+            """
+
+        self.cursor.execute(query, (user.user_name, apt_id))
+        self.connection.commit()
+
     def filter_apts(self, user: User, apt_filter: AptFilter):
         """
         filter apartments by price, location, etc. from the db
@@ -80,13 +125,22 @@ class AptFinder:
     def find_best_apt_match(self, user: User, apt_filter: AptFilter, swipe: Swipe):
         """
         use the embeddings of the apartments and the user's swipes to find the best apartment match
-        :return: best apartment match
+        :return: url of the best apartment match (specific standalone apartment page)
         """
+        # get filtered apartments ids
         filtered_apts = self.filter_apts(user, apt_filter)
         if not filtered_apts:
             return None
 
-        best_match = most_similar_apts(filtered_apts)
+        # get the most similar apartment id
+        best_match_id = most_similar_apts(filtered_apts)
+
+        # update liked/disliked apartments
+        self.update_user_swipe(user, best_match_id, swipe)
+
+        # get the url of the best match
+        best_match = self.get_apt_url(best_match_id)
+
         return best_match
 
 

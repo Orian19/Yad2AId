@@ -93,6 +93,6 @@ def most_similar_apts(target_ids: list):
         max_index = np.argmax(similarities)
         most_similar_id = target_embeddings[max_index][0]
 
-        return most_similar_id, "Apartment found successfully."
+        return most_similar_id
     except Exception as e:
         return None, f"An error occurred: {str(e)}"
