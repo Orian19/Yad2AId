@@ -8,8 +8,8 @@ from fastapi import FastAPI, HTTPException, Depends
 import uvicorn
 
 from schemas import Swipe, User, AptFilter
-from utils.db_utils import create_connection
-from embedding.most_similar_apts import most_similar_apts
+from backend.utils.db_utils import create_connection
+from backend.embedding.most_similar_apts import most_similar_apts
 
 app = FastAPI()
 
@@ -43,6 +43,21 @@ class AptFinder:
         url = self.cursor.fetchone()
 
         return url[0] if url else None
+    
+    def get_user_id(self, user_name: str):
+        """
+        get the user_id based on the user_name
+        :param user_name: name of the user
+        :return: user_id
+        """
+        query = f"""
+            SELECT UserId
+            FROM Users
+            WHERE Name = ?
+        """
+        self.cursor.execute(query, (user_name,))
+        user_id = self.cursor.fetchone()
+        return user_id[0] if user_id else None
 
     def update_user_swipe(self, user: User, apt_id: int, swipe: Swipe):
         """
@@ -53,24 +68,20 @@ class AptFinder:
         :param swipe: swipe object
         :return None
         """
+        user_id = self.get_user_id(user.user_name)
+        
         if swipe.swipe == "right":
             query = f"""
                 INSERT INTO UserLikedApartments (UserId, ApartmentId)
-                VALUES (
-                    (SELECT UserId FROM Users WHERE Name = ?),
-                    ?
-                )
+                VALUES (?,?)
             """
         else:
             query = f"""
                 INSERT INTO UserDislikedApartments (UserId, ApartmentId)
-                VALUES (
-                    (SELECT UserId FROM Users WHERE Name = ?),
-                    ?
-                )
+                VALUES (?,?)
             """
 
-        self.cursor.execute(query, (user.user_name, apt_id))
+        self.cursor.execute(query, (user_id, apt_id))
         self.connection.commit()
 
     def filter_apts(self, user: User, apt_filter: AptFilter):
@@ -132,8 +143,11 @@ class AptFinder:
         if not filtered_apts:
             return None
 
+        #get user id
+        user_id = self.get_user_id(user.user_name)
+        
         # get the most similar apartment id
-        best_match_id = most_similar_apts(filtered_apts)
+        best_match_id = most_similar_apts(filtered_apts, user_id)
 
         # update liked/disliked apartments
         self.update_user_swipe(user, best_match_id, swipe)
@@ -164,6 +178,6 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     return best_match
 
 # TODO: uncomment for testing purposes
-# if __name__ == "__main__":
-#     apt = AptFinder()
-# print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right")))
+if __name__ == "__main__":
+     apt = AptFinder()
+print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right")))
