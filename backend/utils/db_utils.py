@@ -8,7 +8,7 @@ def adapt_array(arr):
     adapt numpy array to binary format for SQLite
     :param arr: numpy array
     :return:
-    """ 
+    """
     out = io.BytesIO()
     np.save(out, arr)
     out.seek(0)
@@ -24,7 +24,7 @@ def convert_array(text):
     out = io.BytesIO(text)
     out.seek(0)
     try:
-        return np.load(out, allow_pickle=True)  
+        return np.load(out, allow_pickle=True)
     except Exception as e:
         print(f"Failed to load numpy array: {e}")
         return None
@@ -57,7 +57,7 @@ def get_apt_urls():
     return [url[0] for url in urls]  # because each URL is returned is a tuple
 
 
-def remove_apt_by_url(apartment_url):
+def remove_apt_by_url(apartment_url: str):
     """
     remove apartment by its url
     :param apartment_url: the url of the apartment
