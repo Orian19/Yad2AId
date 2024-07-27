@@ -27,12 +27,12 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install Twisted
-        run: pip install twisted
-      
+      - name: Install wheel
+        run: pip install wheel
+
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
-        
+              
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
