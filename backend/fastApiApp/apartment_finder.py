@@ -13,11 +13,24 @@ from embedding.most_similar_apts import most_similar_apts
 
 app = FastAPI()
 
-# CORS
-allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:3000')
+# Fetch the allowed origin from the environment variable
+allowed_origin = os.getenv('CORS_ORIGIN', '')
+
+# Define other allowed origins
+origins = [
+    allowed_origin,
+    "https://www.yad2.co.il",
+    "https://www.yad2.co.il/realestate/forsale",
+    "https://www.yad2.co.il/realestate/rent",
+    
+]
+
+# Remove empty strings from the list
+origins = [origin for origin in origins if origin]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,11 +85,13 @@ class AptFinder:
             query = f"""
                 INSERT INTO UserLikedApartments (UserId, ApartmentId)
                 VALUES (?,?)
+                ON CONFLICT (UserId, ApartmentId) DO NOTHING
             """
         else:
             query = f"""
                 INSERT INTO UserDislikedApartments (UserId, ApartmentId)
                 VALUES (?,?)
+                ON CONFLICT (UserId, ApartmentId) DO NOTHING
             """
 
         self.cursor.execute(query, (user_id, apt_id))
@@ -144,6 +159,7 @@ class AptFinder:
         # get the most similar apartment id
         user_id = self.get_user_id(user.user_name)
         best_match_id = most_similar_apts(filtered_apts, user_id)
+        
 
         # update liked/disliked apartments
         self.update_user_swipe(user_id, swipe.apt_id, swipe)
@@ -174,6 +190,7 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     return best_match, best_match_id
 
 # TODO: uncomment for testing purposes
-# if __name__ == "__main__":
-#      apt = AptFinder()
-#     print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right")))
+#if __name__ == "__main__":
+#     apt = AptFinder()
+# print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right", apt_id=5)))
+ 
