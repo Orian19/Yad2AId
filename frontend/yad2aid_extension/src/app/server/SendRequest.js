@@ -14,9 +14,9 @@ export const sendRequest = async (userData, aptFilterData, swipeData) => {
 
     if (response.ok) {
         const data = await response.json();
-        return [data]; 
+        return data; 
     } else {
         console.error("Failed to fetch data");
-        return [];
+        return "";
     }
 };

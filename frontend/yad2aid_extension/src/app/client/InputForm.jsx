@@ -30,24 +30,25 @@ export default function InputForm() {
         const response = await sendRequest(userData, aptFilterData, swipeData);
         console.log('Response:', response);
 
-      const formattedResults = Array.isArray(response) ? response : [];
-      setResults(formattedResults);
+      // const formattedResults = Array.isArray(response) ? response : [];
+      setResults(response);
 
-      //ONLY TO CHECK pages before connecting to backend 
-      const formResults = [
-        { squareMeters, maxPrice, numRooms, city }
-      ];
-      setResults(formResults);
+    //   //ONLY TO CHECK pages before connecting to backend 
+    //   const formResults = [
+    //     { squareMeters, maxPrice, numRooms, city }
+    //   ];
+    //   setResults(formResults);
 
       // Redirect to the results page with the results as a query parameter
-      const queryString = new URLSearchParams({ results: JSON.stringify(formResults) }).toString();
-      router.push(`/results?${queryString}`);
+      // const queryString = new URLSearchParams({ results: JSON.stringify(formResults) }).toString();
+      // router.push(`/results?${queryString}`);
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
   return (
+    <div>
     <form onSubmit={handleSubmit}>
       <label>
         Square Meters:
@@ -87,5 +88,15 @@ export default function InputForm() {
       <br />
       <button type="submit">Search</button>
     </form>
+    {results && (
+      <iframe
+        src={results}
+        width="100%"
+        height="500px"
+        style={{ border: 'none' }}
+        title="Embedded Webpage"
+      ></iframe>
+    )}
+  </div>
   );
 }
