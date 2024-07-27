@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-//import { SendRequest } from '../server/SendRequest.js';
+import { sendRequest } from '../server/SendRequest';
 
 export default function InputForm() {
   const [squareMeters, setSquareMeters] = useState('');
@@ -14,10 +14,24 @@ export default function InputForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      //const response = await SendRequest(squareMeters, maxPrice, numRooms, city);
-      //console.log(response);
-      //const formattedResults = Array.isArray(response) ? response : [];
-      //setResults(formattedResults);
+      const userName = 'Orian';
+      const swipe = 'right';
+      
+      const userData = { user_name: userName };
+        const aptFilterData = { 
+            price: parseInt(maxPrice), 
+            city: city, 
+            sqm: parseInt(squareMeters), 
+            rooms: parseInt(numRooms)
+        };
+        const swipeData = { swipe: swipe }
+
+        console.log('Request Data:', { user: userData, apt_filter: aptFilterData, swipe: swipeData });
+        const response = await sendRequest(userData, aptFilterData, swipeData);
+        console.log('Response:', response);
+
+      const formattedResults = Array.isArray(response) ? response : [];
+      setResults(formattedResults);
 
       //ONLY TO CHECK pages before connecting to backend 
       const formResults = [

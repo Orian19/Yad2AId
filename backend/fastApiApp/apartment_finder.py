@@ -13,10 +13,11 @@ from embedding.most_similar_apts import most_similar_apts
 
 app = FastAPI()
 
-allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:8000')
+# CORS
+allowed_origin = os.getenv('CORS_ORIGIN', 'http://localhost:3000')
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[allowed_origin],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
