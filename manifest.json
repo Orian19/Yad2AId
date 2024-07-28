@@ -17,7 +17,13 @@
   "content_scripts": [
     {
       "matches": ["https://www.yad2.co.il/realestate/*"],
-      "js": ["content.js"]
+      "js": ["content-script-loader.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["content.js", "sendRequest.js", "buttons.js"],
+      "matches": ["https://www.yad2.co.il/*"]
     }
   ],
   "content_security_policy": {
