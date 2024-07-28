@@ -27,9 +27,6 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install wheel
-        run: pip install wheel
-
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
               
