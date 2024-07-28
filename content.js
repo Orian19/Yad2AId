@@ -14,23 +14,31 @@ button.style.zIndex = '1000';
 
 // Define the sendRequest function
 const sendRequest = async (userData, aptFilterData, swipeData) => {
-    const response = await fetch('http://127.0.0.1:8000/apartment/', {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            user: userData,
-            apt_filter: aptFilterData,
-            swipe: swipeData
-        }),
-    });
+    try {
+        console.log("Sending request with data:", { userData, aptFilterData, swipeData });
+        const response = await fetch('http://127.0.0.1:8000/apartment/', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user: userData,
+                apt_filter: aptFilterData,
+                swipe: swipeData
+            }),
+        });
 
-    if (response.ok) {
-        return await response.json();
-    } else {
-        console.error("Failed to fetch data");
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Received response:", data);
+            return data;
+        } else {
+            console.error("Failed to fetch data, status:", response.status);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error during fetch:", error);
         return null;
     }
 };
@@ -45,7 +53,7 @@ button.addEventListener('click', async function() {
         price: 10000,
         city:  " חיפה",
         sqm: 100,
-        rooms: 5
+        rooms: 2
     };
     const swipeData = {
         apt_id: 5,  // You might want to update this dynamically
