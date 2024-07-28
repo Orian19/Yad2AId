@@ -17,7 +17,12 @@ def check_url(apt_id, url):
         response = requests.get(url)
         if response.status_code != 200:
             print(f"Removing apartment with ID {apt_id} and URL {url}")
+            # delete apartment from apartemtns table in db
             cursor.execute("DELETE FROM Apartments WHERE ApartmentId = ?", (apt_id,))
+            # delete apartment from UserLikedApartments table in db
+            cursor.execute("DELETE FROM UserLikedApartments WHERE ApartmentId = ?", (apt_id,))
+            # delete apartment from UserDislikedApartments table in db
+            cursor.execute("DELETE FROM UserDislikedApartments WHERE ApartmentId = ?", (apt_id,))
             connection.commit()
     except Exception as e:
         print(f"Failed to load URL {url}: {e}")
