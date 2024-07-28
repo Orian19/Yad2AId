@@ -7,6 +7,10 @@
     "activeTab",
     "scripting"
   ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://www.yad2.co.il/realestate/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -15,5 +19,8 @@
       "matches": ["https://www.yad2.co.il/realestate/*"],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:8000;"
+  }
 }

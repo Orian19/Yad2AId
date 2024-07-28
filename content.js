@@ -28,11 +28,10 @@ const sendRequest = async (userData, aptFilterData, swipeData) => {
     });
 
     if (response.ok) {
-        const data = await response.json();
-        return data.url; // Assuming the backend returns the URL in a field named 'url'
+        return await response.json();
     } else {
         console.error("Failed to fetch data");
-        return "";
+        return null;
     }
 };
 
@@ -41,23 +40,25 @@ button.addEventListener('click', async function() {
 //    const userData = {}; // Replace with actual user data
 //    const aptFilterData = {}; // Replace with actual apartment filter data
 //    const swipeData = {}; // Replace with actual swipe data
-
-    const userData = {user_name: "Orian"};//testing
-    const aptFilterData = { 
-        price: parseInt(10000), 
-        city: " חיפה", 
-        sqm: parseInt(50), 
-        rooms: parseInt(2)
-    }; // testing
+    const userData = {user_name: "Orian"};
+    const aptFilterData = {
+        price: 10000,
+        city:  " חיפה",
+        sqm: 100,
+        rooms: 5
+    };
     const swipeData = {
-        apt_id: 1,
-        swipe: "right",    
-        }; 
+        apt_id: 5,  // You might want to update this dynamically
+        swipe: "right",
+    };
 
-    const redirectUrl = await sendRequest(userData, aptFilterData, swipeData);
-    if (redirectUrl[0]) {
-        console.log(redirectUrl)
-        window.location.href = redirectUrl;
+    const response = await sendRequest(userData, aptFilterData, swipeData);
+    if (response && response[0]) {
+        console.log("Redirecting to:", response[0]);
+        console.log("ID:", response[1])
+        window.location.href = response[0];
+    } else {
+        console.error("No redirect URL received");
     }
 });
 
