@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Yad2Aid",
+  "version": "1.0",
+  "description": "Redirects to Chrome Extension of Yad2Aid",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://www.yad2.co.il/realestate/*"
+  ],
+  "background": {
+    "service_worker": "frontend/extension/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.yad2.co.il/realestate/*"],
+      "js": ["frontend/extension/content-script-loader.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "frontend/extension/content.js",
+        "frontend/extension/sendRequest.js",
+        "frontend/extension/buttons.js",
+        "frontend/extension/popUpForm.js",
+        "frontend/extension/swipe.js",
+        "frontend/extension/content-script-loader.js"
+      ],
+      "matches": ["https://www.yad2.co.il/*"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:8000;"
+  }
+}

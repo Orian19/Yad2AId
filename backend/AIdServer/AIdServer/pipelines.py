@@ -65,14 +65,6 @@ class AidserverPipeline:
                                 PRIMARY KEY (UserId, ApartmentId)
                                 )""")
 
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS UserSeenApartments(
-                                        UserId INTEGER,
-                                        ApartmentId INTEGER,
-                                        FOREIGN KEY (UserId) REFERENCES Users(UserId),
-                                        FOREIGN KEY (ApartmentId) REFERENCES Apartments(ApartmentId),
-                                        PRIMARY KEY (UserId, ApartmentId)
-                                        )""")
-
     def process_item(self, item, spider):
         self.store_item(item)
         return item
@@ -146,20 +138,5 @@ class AidserverPipeline:
                     self.connection.commit()
                     print(key)
                     print(e)
-
-            # self.cursor.execute("""INSERT INTO UserLikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
-            #     0,
-            #     0
-            # ))
-            #
-            # self.cursor.execute("""INSERT INTO UserDislikedApartments (UserId, ApartmentId) VALUES (?,?)""", (
-            #     0,
-            #     0
-            # ))
-            #
-            # self.cursor.execute("""INSERT INTO UserSeenApartments (UserId, ApartmentId) VALUES (?,?)""", (
-            #     0,
-            #     0
-            # ))
 
         self.connection.commit()
