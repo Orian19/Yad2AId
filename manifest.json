@@ -22,7 +22,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["content.js", "sendRequest.js", "buttons.js"],
+      "resources": ["content.js", "sendRequest.js", "buttons.js", "popUpForm.js"],
       "matches": ["https://www.yad2.co.il/*"]
     }
   ],

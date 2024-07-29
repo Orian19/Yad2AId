@@ -53,7 +53,8 @@ class AptFinder:
             FROM Apartments
             WHERE ApartmentId = ?
         """
-        self.cursor.execute(query, (apt_id,))
+        
+        self.cursor.execute(query, (apt_id[0],))
         url = self.cursor.fetchone()
 
         return url[0] if url else None
@@ -103,10 +104,18 @@ class AptFinder:
         filter apartments by price, location, etc. from the db
         :return: list of relevant apartments ids - never seen before + not swiped left on
         """
-        # extract user's preferences
-        params = (user.user_name, apt_filter.city, apt_filter.price, apt_filter.sqm, apt_filter.rooms,
-                  user.user_name, user.user_name)
+        
+        def format_city_name(city: str) -> str:
+            city = city.strip()
+            return f" {city}" if not city.startswith(" ") else city
 
+        # Format the city name
+        formatted_city = format_city_name(apt_filter.city)
+        
+        # extract user's preferences
+        params = (user.user_name, formatted_city, apt_filter.price, apt_filter.sqm, apt_filter.rooms,
+                  user.user_name, user.user_name)
+        
         query = f"""
                 SELECT a.ApartmentId
                 FROM Apartments a
@@ -145,6 +154,7 @@ class AptFinder:
         # Fetch the results
         filtered_apts = self.cursor.fetchall()
         filtered_apts = [apt_id[0] for apt_id in filtered_apts]
+        
         return filtered_apts
 
     def find_best_apt_match(self, user: User, apt_filter: AptFilter, swipe: Swipe):
@@ -153,7 +163,7 @@ class AptFinder:
         :return: url of the best apartment match (specific standalone apartment page)
         """
         # get filtered apartments ids
-        filtered_apts = self.filter_apts(user, apt_filter)
+        filtered_apts = self.filter_apts(user,  apt_filter)
         if not filtered_apts:
             return None, None
 
@@ -163,7 +173,8 @@ class AptFinder:
         
 
         # update liked/disliked apartments
-        self.update_user_swipe(user_id, swipe.apt_id, swipe)
+        if swipe.apt_id != 0:
+            self.update_user_swipe(user_id, swipe.apt_id, swipe)
 
         # get the url of the best match
         best_match = self.get_apt_url(best_match_id)
@@ -185,14 +196,16 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     :return:
     """
     global apt
+
     best_match, best_match_id = apt.find_best_apt_match(user, apt_filter, swipe)
     if best_match is None or best_match_id is None:
         print("No matches were found")
         raise HTTPException(status_code=404, detail="No matching apartment found")
+    print(f"Url found: {best_match}") #Testing
+    print(f"Apt Id found: {best_match_id}") #Testing
     return best_match, best_match_id
 
 # TODO: uncomment for testing purposes
 #if __name__ == "__main__":
-#     apt = AptFinder()
-#print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city=" חיפה", price=10000, sqm=50, rooms=2), Swipe(swipe="right", apt_id=5)))
- 
+#   apt = AptFinder()
+#print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right", )))
