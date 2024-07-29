@@ -12,17 +12,23 @@
     "https://www.yad2.co.il/realestate/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "extension/background.js"
   },
   "content_scripts": [
     {
       "matches": ["https://www.yad2.co.il/realestate/*"],
-      "js": ["content-script-loader.js"]
+      "js": ["extension/content-script-loader.js"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["content.js", "sendRequest.js", "buttons.js", "popUpForm.js"],
+      "resources": [
+        "extension/content.js",
+        "extension/sendRequest.js",
+        "extension/buttons.js",
+        "extension/popUpForm.js",
+        "extension/swipe.js"
+      ],
       "matches": ["https://www.yad2.co.il/*"]
     }
   ],
