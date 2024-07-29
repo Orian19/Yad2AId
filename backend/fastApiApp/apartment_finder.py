@@ -10,6 +10,7 @@ import uvicorn
 from schemas import Swipe, User, AptFilter
 from backend.utils.db_utils import create_connection
 from backend.embedding.most_similar_apts import most_similar_apts
+from backend.utils.refresh_apts_urls import check_url
 
 app = FastAPI()
 
@@ -23,7 +24,7 @@ origins = [
     "https://www.yad2.co.il",
     "https://www.yad2.co.il/realestate/forsale",
     "https://www.yad2.co.il/realestate/rent",
-    
+
 ]
 
 # Remove empty strings from the list
@@ -53,12 +54,12 @@ class AptFinder:
             FROM Apartments
             WHERE ApartmentId = ?
         """
-        
+
         self.cursor.execute(query, (apt_id,))
         url = self.cursor.fetchone()
 
         return url[0] if url else None
-    
+
     def get_user_id(self, user_name: str):
         """
         get the user_id based on the user_name
@@ -104,18 +105,18 @@ class AptFinder:
         Filter apartments by price, location, etc. from the database.
         :return: list of relevant apartment ids - never seen before + not swiped left on.
         """
-    
+
         def format_city_name(city: str) -> str:
             city = city.strip()
             return f" {city}" if not city.startswith(" ") else city
 
         # Format the city name
         formatted_city = format_city_name(apt_filter.city)
-    
+
         # Extract user's preferences
         params = (user.user_name, formatted_city, apt_filter.price, apt_filter.sqm, apt_filter.rooms,
-                user.user_name, user.user_name, swipe.apt_id)
-    
+                  user.user_name, user.user_name, swipe.apt_id)
+
         query = f"""
                 SELECT a.ApartmentId
                 FROM Apartments a
@@ -155,9 +156,8 @@ class AptFinder:
         # Fetch the results
         filtered_apts = self.cursor.fetchall()
         filtered_apts = [apt_id[0] for apt_id in filtered_apts]
-    
-        return filtered_apts
 
+        return filtered_apts
 
     def find_best_apt_match(self, user: User, apt_filter: AptFilter, swipe: Swipe):
         """
@@ -165,27 +165,28 @@ class AptFinder:
         :return: url of the best apartment match (specific standalone apartment page)
         """
         # get filtered apartments ids
-        filtered_apts = self.filter_apts(user,  apt_filter, swipe)
+        filtered_apts = self.filter_apts(user, apt_filter, swipe)
         if not filtered_apts:
             return None, None
 
         # get the most similar apartment id
         user_id = self.get_user_id(user.user_name)
         best_match_id = most_similar_apts(filtered_apts, user_id)
-        
 
         # update liked/disliked apartments
         if swipe.apt_id != 0:
             self.update_user_swipe(user_id, swipe.apt_id, swipe)
 
         # get the url of the best match
-        best_match = self.get_apt_url(best_match_id)
-        
-        return best_match, best_match_id
+        best_match_url = self.get_apt_url(best_match_id)
 
-            
+        # check if the url is valid and if not run the function again
+        if not check_url(best_match_id, best_match_url):
+            self.find_best_apt_match(user, apt_filter, swipe)
 
-# TODO: comment for testing purposes
+        return best_match_url, best_match_id
+
+
 apt = AptFinder()
 
 
@@ -204,11 +205,11 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     if best_match is None or best_match_id is None:
         print("No matches were found")
         raise HTTPException(status_code=404, detail="No matching apartment found")
-    print(f"Url found: {best_match}") #Testing
-    print(f"Apt Id found: {best_match_id}") #Testing
+    print(f"Url found: {best_match}")  # Testing
+    print(f"Apt Id found: {best_match_id}")  # Testing
     return best_match, best_match_id
 
 # TODO: uncomment for testing purposes
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 #   apt = AptFinder()
-#print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right", )))
+# print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right", )))

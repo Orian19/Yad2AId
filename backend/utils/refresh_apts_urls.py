@@ -24,6 +24,9 @@ def check_url(apt_id, url):
             # delete apartment from UserDislikedApartments table in db
             cursor.execute("DELETE FROM UserDislikedApartments WHERE ApartmentId = ?", (apt_id,))
             connection.commit()
+            return False
+        else:
+            return True
     except Exception as e:
         print(f"Failed to load URL {url}: {e}")
 
