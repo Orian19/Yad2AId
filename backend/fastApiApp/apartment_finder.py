@@ -54,7 +54,7 @@ class AptFinder:
             WHERE ApartmentId = ?
         """
         
-        self.cursor.execute(query, (apt_id[0],))
+        self.cursor.execute(query, (apt_id,))
         url = self.cursor.fetchone()
 
         return url[0] if url else None
@@ -99,23 +99,23 @@ class AptFinder:
         self.cursor.execute(query, (user_id, apt_id))
         self.connection.commit()
 
-    def filter_apts(self, user: User, apt_filter: AptFilter):
+    def filter_apts(self, user: User, apt_filter: AptFilter, swipe: Swipe):
         """
-        filter apartments by price, location, etc. from the db
-        :return: list of relevant apartments ids - never seen before + not swiped left on
+        Filter apartments by price, location, etc. from the database.
+        :return: list of relevant apartment ids - never seen before + not swiped left on.
         """
-        
+    
         def format_city_name(city: str) -> str:
             city = city.strip()
             return f" {city}" if not city.startswith(" ") else city
 
         # Format the city name
         formatted_city = format_city_name(apt_filter.city)
-        
-        # extract user's preferences
+    
+        # Extract user's preferences
         params = (user.user_name, formatted_city, apt_filter.price, apt_filter.sqm, apt_filter.rooms,
-                  user.user_name, user.user_name)
-        
+                user.user_name, user.user_name, swipe.apt_id)
+    
         query = f"""
                 SELECT a.ApartmentId
                 FROM Apartments a
@@ -147,6 +147,7 @@ class AptFinder:
                         WHERE u3.Name = ?
                     )
                 )
+                AND a.ApartmentId <> ?
                """
 
         # Execute the query
@@ -154,8 +155,9 @@ class AptFinder:
         # Fetch the results
         filtered_apts = self.cursor.fetchall()
         filtered_apts = [apt_id[0] for apt_id in filtered_apts]
-        
+    
         return filtered_apts
+
 
     def find_best_apt_match(self, user: User, apt_filter: AptFilter, swipe: Swipe):
         """
@@ -163,7 +165,7 @@ class AptFinder:
         :return: url of the best apartment match (specific standalone apartment page)
         """
         # get filtered apartments ids
-        filtered_apts = self.filter_apts(user,  apt_filter)
+        filtered_apts = self.filter_apts(user,  apt_filter, swipe)
         if not filtered_apts:
             return None, None
 
@@ -178,9 +180,10 @@ class AptFinder:
 
         # get the url of the best match
         best_match = self.get_apt_url(best_match_id)
-
+        
         return best_match, best_match_id
 
+            
 
 # TODO: comment for testing purposes
 apt = AptFinder()
