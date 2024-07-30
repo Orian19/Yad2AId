@@ -17,6 +17,8 @@ export function createPopupForm() {
         <form id="apartmentForm">
             <label for="user_name">User Name:</label>
             <input type="text" id="user_name" required><br><br>
+            <label for="description">Apartment Description:</label>
+            <textarea id="description" required></textarea><br><br>
             <label for="price">Price:</label>
             <input type="number" id="price" required><br><br>
             <label for="city">City:</label>
@@ -34,7 +36,8 @@ export function createPopupForm() {
         e.preventDefault();
 
         const userData = {
-            user_name: document.getElementById('user_name').value
+            user_name: document.getElementById('user_name').value,
+            description: document.getElementById('description').value  // Add the description field here
         };
         const aptFilterData = {
             price: parseInt(document.getElementById('price').value),
@@ -45,6 +48,7 @@ export function createPopupForm() {
 
         // Store data in sessionStorage
         sessionStorage.setItem('user_name', userData.user_name);
+        sessionStorage.setItem('description', userData.description); // Store the description in sessionStorage
         sessionStorage.setItem('price', aptFilterData.price);
         sessionStorage.setItem('city', aptFilterData.city);
         sessionStorage.setItem('sqm', aptFilterData.sqm);
@@ -87,6 +91,7 @@ export function getSessionData() {
         price: parseInt(sessionStorage.getItem('price') || '0'),
         city: sessionStorage.getItem('city') || '',
         sqm: parseInt(sessionStorage.getItem('sqm') || '0'),
-        rooms: parseInt(sessionStorage.getItem('rooms') || '0')
+        rooms: parseInt(sessionStorage.getItem('rooms') || '0'),
+        description: sessionStorage.getItem('description') || ''
     };
 }

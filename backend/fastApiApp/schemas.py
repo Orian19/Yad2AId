@@ -9,6 +9,7 @@ class User(BaseModel):
         "extra": "forbid",  # not allowing attributes that are not defined here to be sent from the client
     }
     user_name: str = Field(..., description="user name")
+    description: str = Field(..., description="description")
 
 
 class Swipe(BaseModel):

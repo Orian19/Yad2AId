@@ -177,7 +177,8 @@ class AptFinder:
 
             # Get the most similar apartment ID
             user_id = self.get_user_id(user.user_name)
-            best_match_id = most_similar_apts(filtered_apts, user_id)
+            
+            best_match_id = most_similar_apts(filtered_apts, user_id, user.description)
 
             # Update liked/disliked apartments
             if swipe.apt_id != 0:
@@ -212,7 +213,6 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     :return:
     """
     global apt
-
     best_match, best_match_id = apt.find_best_apt_match(user, apt_filter, swipe)
     if best_match is None or best_match_id is None:
         print("No matches were found")
@@ -222,7 +222,7 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     return best_match, best_match_id
 
 # TODO: uncomment for testing purposes
-# if __name__ == "__main__":
-#   apt = AptFinder()
-# print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right", )))
+#if __name__ == "__main__":
+#    apt = AptFinder()
+#    print(apt.find_best_apt_match(User(user_name="Orian", description="I want a spacious apartments and for it to be new"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right",)))
 

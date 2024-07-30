@@ -5,7 +5,8 @@ function setSessionData(swipe) {
     const sessionData = getSessionData(); 
 
     const userData = {
-        user_name: sessionData.user_name
+        user_name: sessionData.user_name,
+        description: sessionData.description
     };
     const aptFilterData = {
         price: sessionData.price,
