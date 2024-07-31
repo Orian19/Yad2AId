@@ -9,7 +9,6 @@ class User(BaseModel):
         "extra": "forbid",  # not allowing attributes that are not defined here to be sent from the client
     }
     user_name: str = Field(..., description="user name")
-    description: str = Field(..., description="description")
 
 
 class Swipe(BaseModel):
@@ -34,6 +33,7 @@ class AptFilter(BaseModel):
     city: str = Field(..., description="city")
     sqm: int = Field(..., description="size of the apartment in SQM")
     rooms: int = Field(..., description="number of rooms")
+    description: str = Field(..., description="description")
     # elevator: bool = Field(..., description="elevator in the building")
     # parking: bool = Field(..., description="parking in the building")
     # balcony: bool = Field(..., description="balcony in the apartment")

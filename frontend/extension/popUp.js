@@ -1,6 +1,5 @@
 const popup = document.createElement('div');
 
-// Applying the card styling from the template
 popup.className = 'card bg-base-100 w-96 shadow-xl';
 popup.style.cssText = `
     position: fixed;
@@ -14,9 +13,9 @@ popup.style.cssText = `
     z-index: 9999; /* Ensure the popup is in front of other content */
 `;
 
-// Adding the content of the popup
 popup.innerHTML = `
-    <div class="card-body items-center text-center">
+    <div class="card-body text-center" style="background-color: rgba(255, 255, 255, 0.8); padding: 16px; border-radius: 8px;">
+        <h2 class="card-title"></h2>
         <form id="apartmentForm" style="display: flex; flex-direction: column; gap: 12px;">
             <input type="text" id="user_name" placeholder="User Name" class="input input-bordered w-full" required style="text-align: left;">
             <textarea id="description" placeholder="Description" class="textarea textarea-bordered w-full" required style="text-align: left;"></textarea>

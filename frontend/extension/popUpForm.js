@@ -18,13 +18,13 @@ export function createPopupForm() {
         
         const userData = {
             user_name: document.getElementById('user_name').value,
-            description: document.getElementById('description').value  // Add the description field here
         };
         const aptFilterData = {
             price: parseInt(document.getElementById('price').value),
             city: document.getElementById('city').value,
             sqm: parseInt(document.getElementById('sqm').value),
-            rooms: parseInt(document.getElementById('rooms').value)
+            rooms: parseInt(document.getElementById('rooms').value),
+            description: document.getElementById('description').value  
         };
 
 

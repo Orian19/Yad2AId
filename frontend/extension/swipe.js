@@ -6,13 +6,13 @@ function setSessionData(swipe) {
 
     const userData = {
         user_name: sessionData.user_name,
-        description: sessionData.description
     };
     const aptFilterData = {
         price: sessionData.price,
         city:  sessionData.city,
         sqm: sessionData.sqm,
-        rooms: sessionData.rooms
+        rooms: sessionData.rooms,
+        description: sessionData.description
     };
 
     const swipeData = {
