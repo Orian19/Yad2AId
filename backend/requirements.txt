@@ -1,5 +1,5 @@
 annotated-types==0.7.0
-anyio==4.4.0
+anyio
 attrs==23.2.0
 Automat==22.10.0
 beautifulsoup4==4.12.3
@@ -22,11 +22,11 @@ fastapi
 fastapi-cli==0.0.4
 filelock==3.14.0
 fonttools==4.53.0
-h11==0.9.0
+httpcore==0.15.0
+h11==0.11.0
 h2==3.2.0
 hpack==3.0.0
 hstspreload==2024.6.1
-httpcore
 httptools
 httpx
 hyperframe==5.2.0
@@ -95,3 +95,4 @@ w3lib==2.1.2
 watchfiles==0.22.0
 websockets==12.0
 zope.interface==6.4.post2
+gunicorn
