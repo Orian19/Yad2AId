@@ -3,6 +3,10 @@ import {popup} from './popUp.js'
 
 export function createPopupForm() {
     document.body.appendChild(popup);
+    // Add event listener for the "exit" button
+    document.querySelector('.btn.btn-ghost').addEventListener('click', function() {
+        document.body.removeChild(popup); // Remove the popup from the DOM
+    });
 
     document.getElementById('apartmentForm').addEventListener('submit', async function(e) {
         e.preventDefault();

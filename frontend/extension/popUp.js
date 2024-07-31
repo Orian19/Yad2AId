@@ -1,28 +1,35 @@
 const popup = document.createElement('div');
+
+// Applying the card styling from the template
+popup.className = 'card bg-base-100 w-96 shadow-xl';
 popup.style.cssText = `
     position: fixed;
-    top: 50%;
+    top: 55%; 
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 40px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    width: 500px;
-    direction: ltr;
-    text-align: center; /* Center the content */
-    `;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    overflow: hidden; /* Ensure no overflow issues */
+    padding: 16px;
+    z-index: 9999; /* Ensure the popup is in front of other content */
+`;
 
+// Adding the content of the popup
 popup.innerHTML = `
-     <form id="apartmentForm" style="display: flex; flex-direction: column; align-items: center;">
-        <input type="text" id="user_name" placeholder="User Name" class="input input-bordered input-info w-full max-w-xs" required>
-        <textarea id="description" placeholder="Describe Your Dream Apartment" class="textarea textarea-bordered textarea-info w-full max-w-xs" required style="margin: 10px 0;"></textarea>
-        <input type="number" id="price" placeholder="Price Budget" class="input input-bordered input-info w-full max-w-xs" required>
-        <input type="text" id="city" placeholder="Desired City" class="input input-bordered input-info w-full max-w-xs" required style="margin: 10px 0;">
-        <input type="number" id="sqm" placeholder="Minimum Square Meter" class="input input-bordered input-info w-full max-w-xs" required>
-        <input type="number" id="rooms" placeholder="Number of rooms" class="input input-bordered input-info w-full max-w-xs" required style="margin: 10px 0;">
-        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Submit</button>
-     </form>
-     `;
+    <div class="card-body items-center text-center">
+        <form id="apartmentForm" style="display: flex; flex-direction: column; gap: 12px;">
+            <input type="text" id="user_name" placeholder="User Name" class="input input-bordered w-full" required style="text-align: left;">
+            <textarea id="description" placeholder="Description" class="textarea textarea-bordered w-full" required style="text-align: left;"></textarea>
+            <input type="number" id="price" placeholder="Price Budget" class="input input-bordered w-full" required style="text-align: left;">
+            <input type="text" id="city" placeholder="City - Hebrew" class="input input-bordered w-full" required style="text-align: left;">
+            <input type="number" id="sqm" placeholder="Minimum Square Meter" class="input input-bordered w-full" required style="text-align: left;">
+            <input type="number" id="rooms" placeholder="Number of rooms" class="input input-bordered w-full" required style="text-align: left;">
+        </form>
+        <div class="card-actions justify-end mt-4">
+            <button type="submit" form="apartmentForm" class="btn btn-ghost">Submit</button>
+            <button type="button" class="btn btn-ghost" onclick="document.body.removeChild(popup)">Cancel</button>
+        </div>
+    </div>
+`;
 
-export {popup}
+export { popup }
