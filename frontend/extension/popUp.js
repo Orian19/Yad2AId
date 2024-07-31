@@ -27,7 +27,7 @@ popup.innerHTML = `
         </form>
         <div class="card-actions justify-end mt-4">
             <button type="submit" form="apartmentForm" class="btn btn-ghost">Submit</button>
-            <button type="button" class="btn btn-ghost" onclick="document.body.removeChild(popup)">Cancel</button>
+            <button type="button" id="cancelButton" class="btn btn-ghost">Cancel</button>
         </div>
     </div>
 `;
