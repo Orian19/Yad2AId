@@ -1,5 +1,5 @@
-from backend.utils.db_utils import create_connection
-from backend.embedding.create_embedding import get_embedding
+from utils.db_utils import create_connection
+from embedding.create_embedding import get_embedding
 
 
 def insert_embeddings(con, cur):

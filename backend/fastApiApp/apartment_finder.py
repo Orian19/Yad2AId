@@ -8,9 +8,9 @@ from fastapi import FastAPI, HTTPException, Depends
 import uvicorn
 
 from schemas import Swipe, User, AptFilter
-from backend.utils.db_utils import create_connection
-from backend.embedding.most_similar_apts import most_similar_apts
-from backend.utils.refresh_apts_urls import check_url
+from utils.db_utils import create_connection
+from embedding.most_similar_apts import most_similar_apts
+from utils.refresh_apts_urls import check_url
 
 app = FastAPI()
 
@@ -166,10 +166,10 @@ class AptFinder:
         """
         # Initialize best_match_url and best_match_id
         best_match_url, best_match_id = None, None
-        
+
         # Get filtered apartments IDs
         filtered_apts = self.filter_apts(user, apt_filter, swipe)
-        
+
         # Keep trying until a valid URL is found
         while True:
             if not filtered_apts:
@@ -177,7 +177,8 @@ class AptFinder:
 
             # Get the most similar apartment ID
             user_id = self.get_user_id(user.user_name)
-            best_match_id = most_similar_apts(filtered_apts, user_id)
+
+            best_match_id = most_similar_apts(filtered_apts, user_id, user.description)
 
             # Update liked/disliked apartments
             if swipe.apt_id != 0:
@@ -190,14 +191,15 @@ class AptFinder:
             if check_url(best_match_id, best_match_url):
                 break
             else:
-                #remove faulty apartment_id from filtered_apts
+                # remove faulty apartment_id from filtered_apts
                 filtered_apts = [apt_id for apt_id in filtered_apts if apt_id != best_match_id]
-                
-                #edge case we ran out of apartments
+
+                # edge case we ran out of apartments
                 if not filtered_apts:
                     return None, None  # No apartments found after filtering
-          
+
         return best_match_url, best_match_id
+
 
 apt = AptFinder()
 
@@ -223,6 +225,5 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
 
 # TODO: uncomment for testing purposes
 # if __name__ == "__main__":
-#   apt = AptFinder()
-# print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right", )))
-
+#    apt = AptFinder()
+#    print(apt.find_best_apt_match(User(user_name="Orian", description="I want a spacious apartments and for it to be new"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2), Swipe(apt_id=0, swipe="right",)))

@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from db_utils import create_connection
+from utils.db_utils import create_connection
 import requests
 
 
@@ -51,4 +51,4 @@ def refresh_apts_urls():
     connection.close()
 
 
-refresh_apts_urls()
+# refresh_apts_urls()

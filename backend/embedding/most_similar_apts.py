@@ -1,6 +1,7 @@
 import random
 import numpy as np
-from backend.utils.db_utils import create_connection
+from utils.db_utils import create_connection
+from embedding.create_embedding import get_embedding
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -82,7 +83,7 @@ def fetch_target_apt(target_ids: list, liked_apts: list):
     return ids_embeddings
 
 
-def most_similar_apts(target_ids: list, user_id: int):
+def most_similar_apts(target_ids: list, user_id: int, description=None):
     """
     Finds the most similar apartment from a list of target apartment IDs based on the centroid of liked apartment embeddings.
     """
@@ -92,6 +93,10 @@ def most_similar_apts(target_ids: list, user_id: int):
             return target_ids[0]
 
         liked_ids_embeddings = fetch_liked_apts(user_id)
+        # If user inserted a description take it into account
+        if description != None:
+            liked_ids_embeddings.insert(0, (0, get_embedding(description)))
+
         if not liked_ids_embeddings:
             # Return a random apartment ID from the target_ids list
             if not target_ids:
