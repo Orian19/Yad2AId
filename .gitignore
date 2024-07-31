@@ -5,6 +5,6 @@ __pycache__
 *.DS_Store
 .env
 *.db
-
+node_modules
 
 backend/utils/.venv

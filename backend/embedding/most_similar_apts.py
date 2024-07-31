@@ -4,7 +4,6 @@ from utils.db_utils import create_connection
 from embedding.create_embedding import get_embedding
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 def get_embedding_for_apartment(apt_id):
     """
     Retrieve the embedding for a given apartment ID from the Apartments table.
@@ -97,6 +96,10 @@ def most_similar_apts(target_ids: list, user_id: int, description=None):
         if description != None:
             liked_ids_embeddings.insert(0, (0, get_embedding(description)))
 
+        #If user inserted a description take it into account
+        if description != None:
+            liked_ids_embeddings.insert(0, (0, get_embedding(description)))
+            
         if not liked_ids_embeddings:
             # Return a random apartment ID from the target_ids list
             if not target_ids:

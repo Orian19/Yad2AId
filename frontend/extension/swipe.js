@@ -5,13 +5,14 @@ function setSessionData(swipe) {
     const sessionData = getSessionData(); 
 
     const userData = {
-        user_name: sessionData.user_name
+        user_name: sessionData.user_name,
     };
     const aptFilterData = {
         price: sessionData.price,
         city:  sessionData.city,
         sqm: sessionData.sqm,
-        rooms: sessionData.rooms
+        rooms: sessionData.rooms,
+        description: sessionData.description
     };
 
     const swipeData = {
