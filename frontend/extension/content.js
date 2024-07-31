@@ -18,7 +18,7 @@ function showSwipeButtons() {
 }
 
 // Check if we should show the swipe buttons on page load
-const { showSwipeButtons: shouldShowSwipeButtons } = getSessionData();
-if (shouldShowSwipeButtons) {
-    showSwipeButtons();
-}
+//const { showSwipeButtons: shouldShowSwipeButtons } = getSessionData();
+//if (shouldShowSwipeButtons) {
+showSwipeButtons();
+//}

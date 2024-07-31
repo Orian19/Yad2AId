@@ -1,0 +1,22 @@
+{
+  "name": "yad2aid",
+  "version": "1.0.0",
+  "description": "Idea to Reality - Final Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx postcss styles.css -o frontend/extension/styles.output.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.12.10",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7"
+  },
+  "devDependencies": {
+    "postcss-cli": "^11.0.0"
+  }
+}
