@@ -1,7 +1,6 @@
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from backend.utils.db_utils import create_connection
 import logging
-
 
 # Setup basic logging
 logging.basicConfig(level=logging.INFO)
@@ -9,26 +8,15 @@ logging.basicConfig(level=logging.INFO)
 def translate_to_english(text: str) -> str:
     if not text:
         return ""  # Return empty string if input is empty
-
-    translator = Translator()
+    
+    translator = GoogleTranslator(source='auto', target='en')
     try:
         # Automatically detect the source language and translate to English
-        translation = translator.translate(text, dest='en')
-        return translation.text
+        translation = translator.translate(text)
+        return translation
     except Exception as e:
         logging.error(f"Failed to translate text: {text[:30]}... Error: {str(e)}")
         return text  # Return original text on failure
-    
-def translate_to_english(text: str) -> str:
-    if not text:
-        return ""  # Return empty string if input is empty
-
-    translator = Translator()
-    # Automatically detect the source language and translate to English
-    translation = translator.translate(text, dest='en')
-    # Return only the translated text
-    return translation.text
-
 def update_english_city_names_column(con, cur):
     
     # Select rows where CityNameEnglish is NULL
@@ -79,7 +67,7 @@ def update_english_description_column(conn, cursor):
     logging.info("English descriptions updated successfully.")
     
 # Example usage
-con, cur = create_connection()
-update_english_description_column(con, cur)
+#con, cur = create_connection()
+#update_english_description_column(con, cur)
 #update_english_city_names_column(con, cur)
-con.close()
+#con.close()

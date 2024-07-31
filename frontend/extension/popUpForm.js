@@ -24,7 +24,7 @@ export function createPopupForm() {
             city: document.getElementById('city').value,
             sqm: parseInt(document.getElementById('sqm').value),
             rooms: parseInt(document.getElementById('rooms').value),
-            description: document.getElementById('description').value  
+            description: document.getElementById('description').value || '' // Use empty string if no description 
         };
 
 

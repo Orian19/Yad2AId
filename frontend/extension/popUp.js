@@ -18,7 +18,7 @@ popup.innerHTML = `
         <h2 class="card-title"></h2>
         <form id="apartmentForm" style="display: flex; flex-direction: column; gap: 12px;">
             <input type="text" id="user_name" placeholder="User Name" class="input input-bordered w-full" required style="text-align: left;">
-            <textarea id="description" placeholder="Description" class="textarea textarea-bordered w-full" required style="text-align: left;"></textarea>
+            <textarea id="description" placeholder="Description" class="textarea textarea-bordered w-full" style="text-align: left;"></textarea>
             <input type="number" id="price" placeholder="Price Budget" class="input input-bordered w-full" required style="text-align: left;">
             <input type="text" id="city" placeholder="City - Hebrew" class="input input-bordered w-full" required style="text-align: left;">
             <input type="number" id="sqm" placeholder="Minimum Square Meter" class="input input-bordered w-full" required style="text-align: left;">

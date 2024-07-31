@@ -1,16 +1,11 @@
-from datetime import datetime
-import json
-import math
 import os
-
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, Depends
-import uvicorn
-
+from fastapi import FastAPI, HTTPException
 from schemas import Swipe, User, AptFilter
 from backend.utils.db_utils import create_connection
 from backend.embedding.most_similar_apts import most_similar_apts
 from backend.utils.refresh_apts_urls import check_url
+from backend.embedding.update_english_columns import translate_to_english
 
 app = FastAPI()
 
@@ -178,7 +173,13 @@ class AptFinder:
             # Get the most similar apartment ID
             user_id = self.get_user_id(user.user_name)
             
-            best_match_id = most_similar_apts(filtered_apts, user_id, apt_filter.description)
+            #If user inputted description make sure it is in English
+            if apt_filter.description != "":
+                english_description = translate_to_english(apt_filter.description)
+            else:
+                english_description = None
+                
+            best_match_id = most_similar_apts(filtered_apts, user_id, english_description)
 
             # Update liked/disliked apartments
             if swipe.apt_id != 0:
@@ -224,6 +225,6 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
 # TODO: uncomment for testing purposes
 #if __name__ == "__main__":
 #    apt = AptFinder()
-#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description="I want a spacious apartments and for it to be new"), Swipe(apt_id=0, swipe="right",)))
+#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description="דירה גדולה ממש"), Swipe(apt_id=0, swipe="right",)))
 
 

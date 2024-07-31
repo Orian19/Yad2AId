@@ -2,7 +2,11 @@ import random
 import numpy as np
 from backend.utils.db_utils import create_connection
 from backend.embedding.create_embedding import get_embedding
+from backend.embedding.save_data import load_saved_data, save_saved_data
 from sklearn.metrics.pairwise import cosine_similarity
+
+#Load previous descriptions
+saved_data = load_saved_data()
 
 def get_embedding_for_apartment(apt_id):
     """
@@ -81,7 +85,15 @@ def fetch_target_apt(target_ids: list, liked_apts: list):
     con.close()
     return ids_embeddings
 
-
+def update_description_embedding(description):
+    """
+    Updates the saved description and its embedding if the description has changed.
+    """
+    if description and description != saved_data['description']:
+        saved_data['description'] = description
+        saved_data['description_embedding'] = get_embedding(description).tolist()
+        save_saved_data(saved_data)
+        
 def most_similar_apts(target_ids: list, user_id: int, description = None):
     """
     Finds the most similar apartment from a list of target apartment IDs based on the centroid of liked apartment embeddings.
@@ -93,8 +105,12 @@ def most_similar_apts(target_ids: list, user_id: int, description = None):
 
         liked_ids_embeddings = fetch_liked_apts(user_id)
         #If user inserted a description take it into account
-        if description != None:
-            liked_ids_embeddings.insert(0, (0, get_embedding(description)))
+        if description:
+            update_description_embedding(description)
+        
+        # If we have a persistent description embedding, use it
+        if saved_data['description_embedding'] is not None:
+            liked_ids_embeddings.insert(0, (0, np.array(saved_data['description_embedding'])))
             
         if not liked_ids_embeddings:
             # Return a random apartment ID from the target_ids list
