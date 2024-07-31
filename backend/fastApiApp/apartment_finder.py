@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 import uvicorn
 
-from schemas import Swipe, User, AptFilter
-from utils.db_utils import create_connection
+from fastApiApp.schemas import Swipe, User, AptFilter
 from embedding.most_similar_apts import most_similar_apts
+from utils.db_utils import create_connection
 from utils.refresh_apts_urls import check_url
 
 app = FastAPI()
