@@ -1,6 +1,7 @@
-import azure.functions as func
+# import azure.functions as func
 
-app = func.FunctionApp()
+# app = func.FunctionApp()
 
-# Ensure this import is present to register the function
-from .refresh_apts_urls import timer_trigger
+# # Import the timer_trigger function to register it
+# from .refresh_apts_urls import timer_trigger
+# from .simple_timer import simple_timer
