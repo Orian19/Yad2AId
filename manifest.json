@@ -30,7 +30,8 @@
         "frontend/extension/popUpForm.js",
         "frontend/extension/swipe.js",
         "frontend/extension/content-script-loader.js",
-        "frontend/extension/popUp.js"
+        "frontend/extension/popUp.js",
+        "frontend/extension/exit.js"
       ],
       "matches": ["https://www.yad2.co.il/*"]
     }

@@ -4,6 +4,11 @@ import {popup} from './popUp.js'
 export function createPopupForm() {
     document.body.appendChild(popup);
 
+    const { showExtensionButtons: shouldShowExtensionButtons } = getSessionData();
+    if (shouldShowExtensionButtons) {
+        loadFormData();
+    }
+    
     const cancelButton = document.getElementById('cancelButton');
     if (cancelButton) {
         cancelButton.addEventListener('click', function() {
@@ -30,11 +35,12 @@ export function createPopupForm() {
 
         // Store data in sessionStorage
         sessionStorage.setItem('user_name', userData.user_name);
-        sessionStorage.setItem('description', userData.description); // Store the description in sessionStorage
+        sessionStorage.setItem('description', aptFilterData.description); 
         sessionStorage.setItem('price', aptFilterData.price);
         sessionStorage.setItem('city', aptFilterData.city);
         sessionStorage.setItem('sqm', aptFilterData.sqm);
         sessionStorage.setItem('rooms', aptFilterData.rooms);
+
 
         // Retrieve currentApartmentId from sessionStorage or default to 0
         let currentApartmentId = parseInt(sessionStorage.getItem('currentApartmentId'));
@@ -59,8 +65,8 @@ export function createPopupForm() {
             // Store the new currentApartmentId
             sessionStorage.setItem('currentApartmentId', currentApartmentId.toString());
         
-            // Set showSwipeButtons to true
-            sessionStorage.setItem('showSwipeButtons', 'true');
+            // Set showExtensionButtons to true
+            sessionStorage.setItem('showExtensionButtons', 'true');
 
             window.location.href = response[0];
         } else {
@@ -72,11 +78,31 @@ export function createPopupForm() {
     });
 }
 
+// Function to retrieve and populate form data from sessionStorage
+function loadFormData() {
+    const user_name = sessionStorage.getItem('user_name') || '';
+    const price = sessionStorage.getItem('price') || '';
+    const city = sessionStorage.getItem('city') || '';
+    const sqm = sessionStorage.getItem('sqm') || '';
+    const rooms = sessionStorage.getItem('rooms') || '';
+    const description = sessionStorage.getItem('description') || '';
+
+
+    // Set form fields with the retrieved data
+    document.getElementById('user_name').value = user_name;
+    document.getElementById('price').value = price;
+    document.getElementById('city').value = city;
+    document.getElementById('sqm').value = sqm;
+    document.getElementById('rooms').value = rooms;
+    document.getElementById('description').value = description;
+
+}
+
 // Function to retrieve data from sessionStorage
 export function getSessionData() {
     return {
         currentApartmentId: parseInt(sessionStorage.getItem('currentApartmentId') || '0'),
-        showSwipeButtons: sessionStorage.getItem('showSwipeButtons') === 'true',
+        showExtensionButtons: sessionStorage.getItem('showExtensionButtons') === 'true',
         user_name: sessionStorage.getItem('user_name') || '',
         price: parseInt(sessionStorage.getItem('price') || '0'),
         city: sessionStorage.getItem('city') || '',
