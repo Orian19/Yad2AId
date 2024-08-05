@@ -1,4 +1,3 @@
-import { getSessionData } from "./popUpForm.js";
 import {sendRequest} from "./sendRequest.js"
 
 function setSessionData(swipe) {
@@ -44,4 +43,19 @@ export async function swipe (swipe) {
             console.error("No redirect URL received");
         }
 
+}
+
+// Function to retrieve data from sessionStorage
+export function getSessionData() {
+    return {
+        currentApartmentId: parseInt(sessionStorage.getItem('currentApartmentId') || '0'),
+        showExtensionButtons: sessionStorage.getItem('showExtensionButtons') === 'true',
+        user_name: sessionStorage.getItem('user_name') || '',
+        price: parseInt(sessionStorage.getItem('price') || '0'),
+        city: sessionStorage.getItem('city') || '',
+        sqm: parseInt(sessionStorage.getItem('sqm') || '0'),
+        rooms: parseInt(sessionStorage.getItem('rooms') || '0'),
+        description: sessionStorage.getItem('description') || '',
+        loggedIn: sessionStorage.getItem('loggedIn') === 'true',
+    };
 }

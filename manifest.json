@@ -27,11 +27,16 @@
         "frontend/extension/content.js",
         "frontend/extension/sendRequest.js",
         "frontend/extension/buttons.js",
-        "frontend/extension/popUpForm.js",
+        "frontend/extension/drawer.js",
         "frontend/extension/swipe.js",
         "frontend/extension/content-script-loader.js",
-        "frontend/extension/popUp.js",
-        "frontend/extension/exit.js"
+        "frontend/extension/drawerFormat.js",
+        "frontend/extension/exit.js",
+        "frontend/extension/showLikedApartments.js",
+        "frontend/extension/form.js",
+        "frontend/extension/login.js",
+        "frontend/extension/loginFormat.js"
+
       ],
       "matches": ["https://www.yad2.co.il/*"]
     }

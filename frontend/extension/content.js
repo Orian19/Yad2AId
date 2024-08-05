@@ -1,10 +1,27 @@
 import { Yad2Button, LeftButton, RightButton, ExitButton } from './buttons.js'; 
-import { createPopupForm ,getSessionData } from './popUpForm.js'
+import { showDrawer } from './drawer.js'
 import { exitExtension } from './exit.js'
-import { swipe } from './swipe.js'
+import { swipe, getSessionData } from './swipe.js'
+import { showLogin } from './login.js';
+
+// Get session data
+const sessionData = getSessionData();
+
+// Debug: Log the retrieved session data
+console.log("Initial session data:", sessionData);
+
+//get saved values of booleans controlling buttons
+const { showExtensionButtons: shouldShowExtensionButtons, loggedIn: alreadyLoggedIn } = sessionData;
 
 // Add an event listener to the Yad2Button to show the popup form
-Yad2Button.addEventListener('click', createPopupForm);
+Yad2Button.addEventListener('click', () => {
+    if (alreadyLoggedIn) {
+        showDrawer();
+    } else {
+        showLogin();
+    }
+});
+
 // Add an event listener to the ExitButton to exit extension
 ExitButton.addEventListener('click', exitExtension);
 //Add an event listener for the left swipe 
@@ -23,7 +40,6 @@ function showExtensionButtons() {
 }
 
 // Check if we should show the swipe buttons on page load
-const { showExtensionButtons: shouldShowExtensionButtons } = getSessionData();
 if (shouldShowExtensionButtons) {
     showExtensionButtons();
 }
