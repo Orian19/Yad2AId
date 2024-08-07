@@ -37,6 +37,69 @@ app.add_middleware(
 class AptFinder:
     def __init__(self):
         self.connection, self.cursor = create_connection()
+        
+    def login_user(self, user: User):
+        """
+        Log in the user. If the user doesn't exist, create a new entry.
+        :param user: User object containing the user_name
+        :return: None
+        """
+        # Check if the user already exists
+        query = """
+            SELECT UserId
+            FROM Users
+            WHERE Name = ?
+        """
+        self.cursor.execute(query, (user.user_name,))
+        result = self.cursor.fetchone()
+
+        if result:
+            # User exists, no action needed
+            print(f"User '{user.user_name}' logged in successfully.")
+        else:
+            # User doesn't exist, create a new entry
+            insert_query = """
+                INSERT INTO Users (Name)
+                VALUES (?)
+            """
+            self.cursor.execute(insert_query, (user.user_name,))
+            self.connection.commit()
+            print(f"New user '{user.user_name}' created and logged in successfully.")
+    
+    def getUserApts(self, user: User):
+        """
+        Get all apartments liked by the user, including their details.
+        :param user: User object containing the user_name
+        :return: List of dictionaries containing apartment details
+        """
+        user_id = self.get_user_id(user.user_name)
+    
+        if user_id is None:
+            return []  # Return an empty list if the user doesn't exist
+    
+        query = """
+            SELECT a.ApartmentId, a.Address, c.CityName, a.Url
+            FROM UserLikedApartments ula
+            JOIN Apartments a ON ula.ApartmentId = a.ApartmentId
+            JOIN Cities c ON a.CityId = c.CityId
+            WHERE ula.UserId = ?
+        """
+    
+        self.cursor.execute(query, (user_id,))
+        liked_apartments = self.cursor.fetchall()
+    
+        # Convert the results to a list of dictionaries
+        apartment_details = [
+            {
+                "id": apt[0],
+                "address": apt[1],
+                "city": apt[2],
+                "url": apt[3]
+            }
+            for apt in liked_apartments
+        ]
+    
+        return apartment_details
 
     def get_apt_url(self, apt_id: int):
         """
@@ -222,9 +285,45 @@ async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
     print(f"Apt Id found: {best_match_id}")  # Testing
     return best_match, best_match_id
 
+@app.post("/login/")
+async def logIn(user: User):
+    """
+    log in the user, if login does not exist create it 
+    :param user:
+    :return: None
+    """
+    global apt
+    apt.login_user(user)
+    
+@app.post("/likedApts/")
+async def getLikedApts(user: User):
+    """
+    get user liked apartments
+    :param user:
+    :return: dict
+    """
+    global apt
+    liked_apts = apt.getUserApts(user)
+    if liked_apts is None:
+        print("No apartments liked yet")
+        raise HTTPException(status_code=404, detail="No matching apartment found")
+    for apt in liked_apts:
+        print(f"Liked Apt: {apt}")      
+    return liked_apts
+
 # TODO: uncomment for testing purposes
 #if __name__ == "__main__":
 #    apt = AptFinder()
-#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description="דירה גדולה ממש"), Swipe(apt_id=0, swipe="right",)))
+#    print(apt.getUserApts(User(user_name="danastok@gmail.com")))
+    
+# TODO: uncomment for testing purposes
+#if __name__ == "__main__":
+#    apt = AptFinder()
+#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description=""), Swipe(apt_id=0, swipe="right",)))
+
+# TODO: uncomment for testing purposes
+#if __name__ == "__main__":
+#    apt = AptFinder()
+#    print(apt.login_user(User(user_name="danastok@gmail.com")))
 
 

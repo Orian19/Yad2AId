@@ -1,45 +1,31 @@
 import { Yad2Button, LeftButton, RightButton, ExitButton } from './buttons.js'; 
-import { showDrawer } from './drawer.js'
-import { exitExtension } from './exit.js'
-import { swipe, getSessionData } from './swipe.js'
-import { showLogin } from './login.js';
+import { showDrawer } from './drawer.js';
+import { exitExtension } from './exit.js';
+import { swipe, getSessionData } from './swipe.js';
 
-// Get session data
-const sessionData = getSessionData();
-
-// Debug: Log the retrieved session data
-console.log("Initial session data:", sessionData);
-
-//get saved values of booleans controlling buttons
-const { showExtensionButtons: shouldShowExtensionButtons, loggedIn: alreadyLoggedIn } = sessionData;
-
-// Add an event listener to the Yad2Button to show the popup form
-Yad2Button.addEventListener('click', () => {
-    if (alreadyLoggedIn) {
-        showDrawer();
-    } else {
-        showLogin();
-    }
-});
-
-// Add an event listener to the ExitButton to exit extension
+// Add event listener to the Yad2Button to open the drawer when clicked.
+Yad2Button.addEventListener('click', showDrawer);
+// Add event listener to the ExitButton to exit extension when clicked.
 ExitButton.addEventListener('click', exitExtension);
-//Add an event listener for the left swipe 
+// "Swipe" left when LeftButton is clicked.
 LeftButton.addEventListener('click', () => swipe("left"));
-//Add an event listener for the right swipe
+// "Swipe" right when LeftButton is clicked.
 RightButton.addEventListener('click', () => swipe("right"));
 
+// Append the Yad2Button to the document's body, making it visible on the page.
 document.body.appendChild(Yad2Button);
 
-// Function to show the Left and Right buttons
+// Define a function to display navigation buttons on the extension.
 function showExtensionButtons() {
     document.body.appendChild(LeftButton);
     document.body.appendChild(RightButton);
     document.body.appendChild(ExitButton);
-
 }
+//get button controlling elements from session data 
+const { showExtensionButtons: shouldShowExtensionButtons} = getSessionData();
 
-// Check if we should show the swipe buttons on page load
+// Conditionally display the navigation buttons based on session data.
 if (shouldShowExtensionButtons) {
     showExtensionButtons();
 }
+

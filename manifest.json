@@ -32,16 +32,16 @@
         "frontend/extension/content-script-loader.js",
         "frontend/extension/drawerFormat.js",
         "frontend/extension/exit.js",
-        "frontend/extension/showLikedApartments.js",
+        "frontend/extension/logIn.js",
         "frontend/extension/form.js",
-        "frontend/extension/login.js",
-        "frontend/extension/loginFormat.js"
-
+        "frontend/extension/sendLogIn.js",
+        "frontend/extension/likedApts.js",
+        "frontend/extension/fetchLikedApts.js"
       ],
       "matches": ["https://www.yad2.co.il/*"]
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:8000;"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; connect-src http://127.0.0.1:8000;"    
   }
 }

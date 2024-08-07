@@ -1,47 +1,68 @@
-import { login } from './loginFormat.js'
-import { getSessionData } from './swipe.js';
+import { setLoggedIn, updateButtonVisibility } from './drawer.js';
+import { loginUser } from './sendLogIn.js';
 
-export function showLogin() {
-    // Check if the login element is not already in the DOM
-    if (!document.body.contains(login)) {
-        // Append the login dialog to the body
-        document.body.appendChild(login);
+// Function to show login form
+export function showLogIn() {
+  const drawerBody = document.getElementById('drawerBody');
+  
+  // Create login form HTML
+  const loginForm = `
+    <form id="loginForm">
+      <div style="margin-bottom: 15px;">
+        <label for="email" style="display: block; margin-bottom: 5px;">Email:</label>
+        <input type="email" id="email" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      </div>
+      <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Log In</button>
+    </form>
+  `;
 
-        // Add event listeners when the login is added to the DOM
-        document.getElementById('submitLogin').addEventListener('click', handleLogin);
-        document.getElementById('closeLogin').addEventListener('click', closeLogin);
-    }
+  // Set the drawer body content
+  drawerBody.innerHTML = loginForm;
 
-    // Check if the dialog is already open
-    if (!login.open) {
-        // Show the modal if it is not already open
-        login.showModal();
-    }
+  // Add event listener to the form
+  const form = document.getElementById('loginForm');
+  form.addEventListener('submit', handleSubmit);
 }
 
-function closeLogin() {
-    // Check if the login element is in the DOM
-    if (document.body.contains(login)) {
-        // Close the dialog if it is open
-        if (login.open) {
-            login.close();
-        }
+// Function to handle form submission
+async function handleSubmit(event) {
+  event.preventDefault();
+  const email = document.getElementById('email').value;
 
-        document.body.removeChild(login);
-    }
+  //set user name of session
+  sessionStorage.setItem('user_name', email)
+  
+  const userData = {
+    user_name: sessionStorage.getItem('user_name')
+  };
+
+  //Login the user 
+  const loginSuccessful = await loginUser(userData);
+
+  //TEST checks for success of login
+  if (loginSuccessful) {
+    setTimeout(() => {
+      setLoggedIn(true);
+      //Delete email input box & submit button
+      const drawerBody = document.getElementById('drawerBody');
+      drawerBody.innerHTML = ``;
+      updateButtonVisibility();
+    }, 200); // Simulating server delay
+  } else {
+    console.log("Login failed");
+    // Handle login failure
+  }
+
 }
 
-function handleLogin() {
-    // Implement login logic here
-    sessionStorage.setItem('loggedIn', 'true');
-    const sessionData = getSessionData();
+// Function to handle logout
+export function handleLogout() {
+  sessionStorage.setItem('isLoggedIn', 'false'); //set loggedIn indicator to false 
 
-    // Debug: Log the retrieved session data
-    console.log("Now session data:", sessionData);
-    console.log('Login attempt...');
-    // Placeholder for actual login logic
-
-    // Close the modal on successful login
-    closeLogin();
+  sessionStorage.removeItem('user_name'); // Remove user_name from session storage
+  console.log("post log out", sessionStorage.getItem('user_name'))
+  updateButtonVisibility();
+  // Clear any user-specific data or reset the drawer state as needed
+  const drawerBody = document.getElementById('drawerBody');
+  drawerBody.innerHTML = '';
 }
-

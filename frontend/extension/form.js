@@ -1,10 +1,10 @@
 import { sendRequest } from './sendRequest.js';
 import { hideDrawer } from './drawer.js'
+
 // Function to create the apartment details form
 export function createApartmentDetailsForm() {
     const formHtml = `
         <form id="apartmentForm" style="display: flex; flex-direction: column; gap: 12px;">
-            <input type="text" id="user_name" placeholder="User Name" class="input input-bordered w-full" required style="text-align: left;">
             <textarea id="description" placeholder="Description" class="textarea textarea-bordered w-full" style="text-align: left;"></textarea>
             <input type="number" id="price" placeholder="Price Budget" class="input input-bordered w-full" required style="text-align: left;">
             <input type="text" id="city" placeholder="City - Hebrew" class="input input-bordered w-full" required style="text-align: left;">
@@ -27,9 +27,9 @@ export function createApartmentDetailsForm() {
 // Function to handle form submission
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
+
     const userData = {
-        user_name: document.getElementById('user_name').value,
+        user_name: sessionStorage.getItem('user_name')
     };
     const aptFilterData = {
         price: parseInt(document.getElementById('price').value),
@@ -40,7 +40,7 @@ async function handleFormSubmit(e) {
     };
 
     // Store data in sessionStorage
-    Object.entries({...userData, ...aptFilterData}).forEach(([key, value]) => {
+    Object.entries({...aptFilterData}).forEach(([key, value]) => {
         sessionStorage.setItem(key, value);
     });
 
