@@ -1,24 +1,31 @@
-import { Yad2Button, LeftButton, RightButton } from './buttons.js'; 
-import { createPopupForm ,getSessionData } from './popUpForm.js'
-import { swipe } from './swipe.js'
+import { Yad2Button, LeftButton, RightButton, ExitButton } from './buttons.js'; 
+import { showDrawer } from './drawer.js';
+import { exitExtension } from './exit.js';
+import { swipe, getSessionData } from './swipe.js';
 
-// Add an event listener to the Yad2Button to show the popup form
-Yad2Button.addEventListener('click', createPopupForm);
-//Add an event listener for the left swipe 
+// Add event listener to the Yad2Button to open the drawer when clicked.
+Yad2Button.addEventListener('click', showDrawer);
+// Add event listener to the ExitButton to exit extension when clicked.
+ExitButton.addEventListener('click', exitExtension);
+// "Swipe" left when LeftButton is clicked.
 LeftButton.addEventListener('click', () => swipe("left"));
-//Add an event listener for the right swipe
+// "Swipe" right when LeftButton is clicked.
 RightButton.addEventListener('click', () => swipe("right"));
 
+// Append the Yad2Button to the document's body, making it visible on the page.
 document.body.appendChild(Yad2Button);
 
-// Function to show the Left and Right buttons
-function showSwipeButtons() {
+// Define a function to display navigation buttons on the extension.
+function showExtensionButtons() {
     document.body.appendChild(LeftButton);
     document.body.appendChild(RightButton);
+    document.body.appendChild(ExitButton);
+}
+//get button controlling elements from session data 
+const { showExtensionButtons: shouldShowExtensionButtons} = getSessionData();
+
+// Conditionally display the navigation buttons based on session data.
+if (shouldShowExtensionButtons) {
+    showExtensionButtons();
 }
 
-// Check if we should show the swipe buttons on page load
-const { showSwipeButtons: shouldShowSwipeButtons } = getSessionData();
-if (shouldShowSwipeButtons) {
-    showSwipeButtons();
-}
