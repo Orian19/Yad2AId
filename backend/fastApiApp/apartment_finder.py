@@ -1,11 +1,11 @@
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
-from schemas import Swipe, User, AptFilter
-from backend.utils.db_utils import create_connection
-from backend.embedding.most_similar_apts import most_similar_apts
-from backend.utils.refresh_apts_urls import check_url
-from backend.embedding.update_english_columns import translate_to_english
+from fastApiApp.schemas import Swipe, User, AptFilter
+from utils.db_utils import create_connection
+from embedding.most_similar_apts import most_similar_apts
+from utils.refresh_apts_urls import check_url
+from embedding.update_english_columns import translate_to_english
 
 app = FastAPI()
 
@@ -224,10 +224,10 @@ class AptFinder:
         """
         # Initialize best_match_url and best_match_id
         best_match_url, best_match_id = None, None
-        
+
         # Get filtered apartments IDs
         filtered_apts = self.filter_apts(user, apt_filter, swipe)
-        
+
         # Keep trying until a valid URL is found
         while True:
             if not filtered_apts:
@@ -255,14 +255,15 @@ class AptFinder:
             if check_url(best_match_id, best_match_url):
                 break
             else:
-                #remove faulty apartment_id from filtered_apts
+                # remove faulty apartment_id from filtered_apts
                 filtered_apts = [apt_id for apt_id in filtered_apts if apt_id != best_match_id]
-                
-                #edge case we ran out of apartments
+
+                # edge case we ran out of apartments
                 if not filtered_apts:
                     return None, None  # No apartments found after filtering
-          
+
         return best_match_url, best_match_id
+
 
 apt = AptFinder()
 
@@ -312,7 +313,7 @@ async def getLikedApts(user: User):
     return liked_apts
 
 # TODO: uncomment for testing purposes
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 #    apt = AptFinder()
 #    print(apt.getUserApts(User(user_name="danastok@gmail.com")))
     

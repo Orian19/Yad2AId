@@ -49,3 +49,6 @@ def refresh_apts_urls():
             executor.submit(check_url, apt_id, url)
 
     connection.close()
+
+
+# refresh_apts_urls()
