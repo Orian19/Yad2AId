@@ -1,11 +1,14 @@
-import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
+
 from fastApiApp.schemas import Swipe, User, AptFilter
 from utils.db_utils import create_connection
 from embedding.most_similar_apts import most_similar_apts
 from utils.refresh_apts_urls import check_url
 from embedding.update_english_columns import translate_to_english
+
+import uvicorn
+import os
 
 app = FastAPI()
 
@@ -311,6 +314,11 @@ async def getLikedApts(user: User):
     for apt in liked_apts:
         print(f"Liked Apt: {apt}")      
     return liked_apts
+
+
+if __name__ == '__main__':
+    apt = AptFinder()
+    uvicorn.run(f'fastApiApp.apartment_finder:app', host='0.0.0.0', port=8000)
 
 # TODO: uncomment for testing purposes
 # if __name__ == "__main__":
