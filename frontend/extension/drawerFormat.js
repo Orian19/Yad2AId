@@ -22,6 +22,8 @@ drawer.innerHTML = `
       <button id="logInBtn" class="btn btn-ghost">Log In</button>
       <button id="apartmentDetailsBtn" class="btn btn-ghost" style="display: none;">Apartment Details</button>
       <button id="likedApartmentsBtn" class="btn btn-ghost" style="display: none;">My Apartments</button>
+      <button id="dislikedApartmentsBtn" class="btn btn-ghost" style="display: none;">Spam Apartments</button>
+
 
     </div>
     <div id="drawerBody" style="flex-grow: 1;"></div>

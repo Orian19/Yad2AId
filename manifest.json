@@ -36,7 +36,12 @@
         "frontend/extension/form.js",
         "frontend/extension/sendLogIn.js",
         "frontend/extension/likedApts.js",
-        "frontend/extension/fetchLikedApts.js"
+        "frontend/extension/fetchLikedApts.js",
+        "frontend/extension/sendDeleteRequest.js",
+        "frontend/extension/fetchDislikedApts.js",
+        "frontend/extension/dislikedApts.js"
+
+
       ],
       "matches": ["https://www.yad2.co.il/*"]
     }

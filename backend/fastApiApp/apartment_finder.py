@@ -6,6 +6,7 @@ from backend.utils.db_utils import create_connection
 from backend.embedding.most_similar_apts import most_similar_apts
 from backend.utils.refresh_apts_urls import check_url
 from backend.embedding.update_english_columns import translate_to_english
+from user_information import UserInformation
 
 app = FastAPI()
 
@@ -38,68 +39,6 @@ class AptFinder:
     def __init__(self):
         self.connection, self.cursor = create_connection()
         
-    def login_user(self, user: User):
-        """
-        Log in the user. If the user doesn't exist, create a new entry.
-        :param user: User object containing the user_name
-        :return: None
-        """
-        # Check if the user already exists
-        query = """
-            SELECT UserId
-            FROM Users
-            WHERE Name = ?
-        """
-        self.cursor.execute(query, (user.user_name,))
-        result = self.cursor.fetchone()
-
-        if result:
-            # User exists, no action needed
-            print(f"User '{user.user_name}' logged in successfully.")
-        else:
-            # User doesn't exist, create a new entry
-            insert_query = """
-                INSERT INTO Users (Name)
-                VALUES (?)
-            """
-            self.cursor.execute(insert_query, (user.user_name,))
-            self.connection.commit()
-            print(f"New user '{user.user_name}' created and logged in successfully.")
-    
-    def getUserApts(self, user: User):
-        """
-        Get all apartments liked by the user, including their details.
-        :param user: User object containing the user_name
-        :return: List of dictionaries containing apartment details
-        """
-        user_id = self.get_user_id(user.user_name)
-    
-        if user_id is None:
-            return []  # Return an empty list if the user doesn't exist
-    
-        query = """
-            SELECT a.ApartmentId, a.Address, c.CityName, a.Url
-            FROM UserLikedApartments ula
-            JOIN Apartments a ON ula.ApartmentId = a.ApartmentId
-            JOIN Cities c ON a.CityId = c.CityId
-            WHERE ula.UserId = ?
-        """
-    
-        self.cursor.execute(query, (user_id,))
-        liked_apartments = self.cursor.fetchall()
-    
-        # Convert the results to a list of dictionaries
-        apartment_details = [
-            {
-                "id": apartment[0],
-                "address": apartment[1],
-                "city": apartment[2],
-                "url": apartment[3]
-            }
-            for apartment in liked_apartments
-        ]
-    
-        return apartment_details
 
     def get_apt_url(self, apt_id: int):
         """
@@ -265,7 +204,7 @@ class AptFinder:
         return best_match_url, best_match_id
 
 apt = AptFinder()
-
+usr = UserInformation(apt.connection, apt.cursor)
 
 @app.post("/apartment/")
 async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
@@ -292,8 +231,8 @@ async def logIn(user: User):
     :param user:
     :return: None
     """
-    global apt
-    apt.login_user(user)
+    global usr
+    usr.login_user(user)
     
 @app.post("/likedApts/")
 async def getLikedApts(user: User):
@@ -302,14 +241,44 @@ async def getLikedApts(user: User):
     :param user:
     :return: dict
     """
-    global apt
-    liked_apts = apt.getUserApts(user)
+    global usr
+    liked_apts = usr.getUserApts(user, True)
     if liked_apts is None:
         print("No apartments liked yet")
         raise HTTPException(status_code=404, detail="No matching apartment found")
     for apartment in liked_apts:
         print(f"Liked Apt: {apartment}")      
     return liked_apts
+
+@app.post("/dislikedApts/")
+async def getDislikedApts(user: User):
+    """
+    get user liked apartments
+    :param user:
+    :return: dict
+    """
+    global usr
+    disliked_apts = usr.getUserApts(user, False)
+    if disliked_apts is None:
+        print("No apartments liked yet")
+        raise HTTPException(status_code=404, detail="No matching apartment found")
+    for apartment in disliked_apts:
+        print(f"Liked Apt: {apartment}")      
+    return disliked_apts
+
+@app.post("/deleteApt/")
+async def getLikedApts(swipe: Swipe):
+    """
+    If swipe is left, delete apartment with indicated apartment id from user liked apartments, 
+    otherwise if swipe is right delete apartment with indicated apartment id from user disliked apartments
+    :param swipe:
+    :return: 
+    """
+    global usr
+    if swipe.swipe == 'left':
+        usr.updateUserLikedApts(swipe.apt_id)
+    else:
+        usr.updateUserDislikedApts(swipe.apt_id)
 
 # TODO: uncomment for testing purposes
 #if __name__ == "__main__":
