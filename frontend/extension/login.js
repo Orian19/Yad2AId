@@ -27,13 +27,13 @@ export function showLogIn() {
 // Function to handle form submission
 async function handleSubmit(event) {
   event.preventDefault();
-  const email = document.getElementById('email').value;
+  const email = document.getElementById('email').value.trim();
 
   //set user name of session
   sessionStorage.setItem('user_name', email)
   
   const userData = {
-    user_name: sessionStorage.getItem('user_name')
+    user_name: email,
   };
 
   //Login the user 

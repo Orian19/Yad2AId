@@ -91,12 +91,12 @@ class AptFinder:
         # Convert the results to a list of dictionaries
         apartment_details = [
             {
-                "id": apt[0],
-                "address": apt[1],
-                "city": apt[2],
-                "url": apt[3]
+                "id": apartment[0],
+                "address": apartment[1],
+                "city": apartment[2],
+                "url": apartment[3]
             }
-            for apt in liked_apartments
+            for apartment in liked_apartments
         ]
     
         return apartment_details
@@ -307,8 +307,8 @@ async def getLikedApts(user: User):
     if liked_apts is None:
         print("No apartments liked yet")
         raise HTTPException(status_code=404, detail="No matching apartment found")
-    for apt in liked_apts:
-        print(f"Liked Apt: {apt}")      
+    for apartment in liked_apts:
+        print(f"Liked Apt: {apartment}")      
     return liked_apts
 
 # TODO: uncomment for testing purposes
@@ -325,5 +325,4 @@ async def getLikedApts(user: User):
 #if __name__ == "__main__":
 #    apt = AptFinder()
 #    print(apt.login_user(User(user_name="danastok@gmail.com")))
-
 
