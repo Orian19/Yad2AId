@@ -1,5 +1,5 @@
 import { setLoggedIn, updateButtonVisibility } from './drawer.js';
-import { loginUser } from './sendLogIn.js';
+import { loginUser } from '../server/sendLogIn.js';
 
 // Function to show login form
 export function showLogIn() {

@@ -1,4 +1,4 @@
-import { drawer } from './drawerFormat.js';
+import { drawer } from '../components/drawerFormat.js';
 import { createApartmentDetailsForm } from './form.js';
 import { showLogIn, handleLogout } from './logIn.js';
 import { likedApts } from './likedApts.js'

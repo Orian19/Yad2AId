@@ -1,13 +1,13 @@
-export const getLikedApts = async (userData) => {
+export const getApartments = async (getApts) => {
     try {
-        console.log("Sending login request with data:", { userData });
-        const response = await fetch('http://127.0.0.1:8000/likedApts/', {
+        console.log("Sending login request with data:", { getApts });
+        const response = await fetch('http://127.0.0.1:8000/getApts/', {
             method: 'POST',
             mode: 'cors',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(userData),
+            body: JSON.stringify(getApts),
         });
   
         if (response.ok) {

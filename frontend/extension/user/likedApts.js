@@ -1,14 +1,15 @@
-import { getDislikedApts } from './fetchDislikedApts.js';
-import { deletePrefrence } from './sendDeleteRequest.js'
+import { getApartments } from '../server/fetchApts.js';
+import { deletePrefrence } from '../server/sendDeleteRequest.js'
 
-export async function disLikedApts() {
-    const userData = {
-        user_name: sessionStorage.getItem('user_name')
+export async function likedApts() {
+    const getApts = {
+        user_name: sessionStorage.getItem('user_name'),
+        liked: "true"
     };
     
     try {
-        const disliked_apts = await getDislikedApts(userData);
-        console.log("Disliked apts:", disliked_apts);
+        const liked_apts = await getApartments(getApts);
+        console.log("Liked apts:", liked_apts);
 
         const drawerBody = document.getElementById('drawerBody');
         if (!drawerBody) return;
@@ -17,7 +18,7 @@ export async function disLikedApts() {
         let content = '';
 
         // Group apartments by city
-        const groupedApts = disliked_apts.reduce((acc, apt) => {
+        const groupedApts = liked_apts.reduce((acc, apt) => {
             if (!acc[apt.city]) {
                 acc[apt.city] = [];
             }
@@ -32,10 +33,10 @@ export async function disLikedApts() {
                 aptElement.remove();
                 const deletedAptId = aptId;
                 console.log(`Apartment with ID ${deletedAptId} was deleted.`);
-                //as apartment is currently not liked a right swipe will remove from disliked apartments
+                //as apartment is currently like a swipe left will remove from liked apartments
                 const swipeData = {
                     apt_id: parseInt(aptId),
-                    swipe: "right"
+                    swipe: "left"
                 };
             
                 deletePrefrence(swipeData)
@@ -75,6 +76,6 @@ export async function disLikedApts() {
         // Attach the deleteApt function to the window object so it can be accessed from the onclick attribute
         window.deleteApt = deleteApt;
     } catch (error) {
-        console.error("Error fetching disliked apts:", error);
+        console.error("Error fetching liked apts:", error);
     }
 }

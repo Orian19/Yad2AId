@@ -1,4 +1,4 @@
-import {sendRequest} from "./sendRequest.js"
+import {sendRequest} from "../server/sendRequest.js"
 
 function setSessionData(swipe) {
     const sessionData = getSessionData(); 

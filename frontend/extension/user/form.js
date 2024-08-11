@@ -1,4 +1,4 @@
-import { sendRequest } from './sendRequest.js';
+import { sendRequest } from '../server/sendRequest.js';
 import { hideDrawer } from './drawer.js'
 
 // Function to create the apartment details form

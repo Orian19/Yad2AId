@@ -1,7 +1,7 @@
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
-from schemas import Swipe, User, AptFilter
+from schemas import Swipe, User, AptFilter, GetApts
 from backend.utils.db_utils import create_connection
 from backend.embedding.most_similar_apts import most_similar_apts
 from backend.utils.refresh_apts_urls import check_url
@@ -234,40 +234,24 @@ async def logIn(user: User):
     global usr
     usr.login_user(user)
     
-@app.post("/likedApts/")
-async def getLikedApts(user: User):
+@app.post("/getApts/")
+async def getApts(getApts: GetApts):
     """
     get user liked apartments
     :param user:
     :return: dict
     """
     global usr
-    liked_apts = usr.getUserApts(user, True)
-    if liked_apts is None:
+    apartments = usr.getUserApts(getApts)
+    if apartments is None:
         print("No apartments liked yet")
         raise HTTPException(status_code=404, detail="No matching apartment found")
-    for apartment in liked_apts:
+    for apartment in apartments:
         print(f"Liked Apt: {apartment}")      
-    return liked_apts
-
-@app.post("/dislikedApts/")
-async def getDislikedApts(user: User):
-    """
-    get user liked apartments
-    :param user:
-    :return: dict
-    """
-    global usr
-    disliked_apts = usr.getUserApts(user, False)
-    if disliked_apts is None:
-        print("No apartments liked yet")
-        raise HTTPException(status_code=404, detail="No matching apartment found")
-    for apartment in disliked_apts:
-        print(f"Liked Apt: {apartment}")      
-    return disliked_apts
+    return apartments
 
 @app.post("/deleteApt/")
-async def getLikedApts(swipe: Swipe):
+async def deleteApts(swipe: Swipe):
     """
     If swipe is left, delete apartment with indicated apartment id from user liked apartments, 
     otherwise if swipe is right delete apartment with indicated apartment id from user disliked apartments
@@ -275,6 +259,7 @@ async def getLikedApts(swipe: Swipe):
     :return: 
     """
     global usr
+    #left - delete from liked apartments, right - delete from disliked apartments
     if swipe.swipe == 'left':
         usr.updateUserLikedApts(swipe.apt_id)
     else:

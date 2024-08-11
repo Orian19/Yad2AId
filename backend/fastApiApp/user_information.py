@@ -1,5 +1,5 @@
 import sqlite3
-from schemas import Swipe, User, AptFilter
+from schemas import Swipe, User, AptFilter, GetApts
 
 class UserInformation:
     def __init__(self, connection, cursor):
@@ -49,17 +49,17 @@ class UserInformation:
             self.connection.commit()
             print(f"New user '{user.user_name}' created and logged in successfully.")
     
-    def getUserApts(self, user: User, liked: bool):
+    def getUserApts(self, getApts: GetApts):
         """
         Get all apartments liked by the user, including their details.
         :param user: User object containing the user_name
         :return: List of dictionaries containing apartment details
         """
-        user_id = self.get_user_id(user.user_name)
+        user_id = self.get_user_id(getApts.user_name)
     
         if user_id is None:
             return []  # Return an empty list if the user doesn't exist
-        if liked:
+        if getApts.liked:
             query = """
                 SELECT a.ApartmentId, a.Address, c.CityName, a.Url
                 FROM UserLikedApartments ula
