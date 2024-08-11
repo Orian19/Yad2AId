@@ -1,7 +1,7 @@
 export const getApartments = async (getApts) => {
     try {
         console.log("Sending login request with data:", { getApts });
-        const response = await fetch('http://127.0.0.1:8000/getApts/', {
+        const response = await fetch('https://python-webapp-quickstart-000.azurewebsites.net/getApts/', {
             method: 'POST',
             mode: 'cors',
             headers: {
