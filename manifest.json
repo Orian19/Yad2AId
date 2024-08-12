@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Yad2Aid",
+  "version": "1.0",
+  "description": "Redirects to Chrome Extension of Yad2Aid",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://www.yad2.co.il/realestate/*"
+  ],
+  "background": {
+    "service_worker": "frontend/extension/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.yad2.co.il/realestate/*"],
+      "js": ["frontend/extension/content-script-loader.js"],
+      "css": ["styles.output.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "frontend/extension/server/sendRequest.js",
+        "frontend/extension/server/sendLogIn.js",
+        "frontend/extension/server/sendDeleteRequest.js",
+        "frontend/extension/server/fetchApts.js",
+        "frontend/extension/components/buttons.js",
+        "frontend/extension/components/exit.js",
+        "frontend/extension/components/drawerFormat.js",
+        "frontend/extension/components/swipe.js",
+        "frontend/extension/components/likedOrDislikedApts.js",
+        "frontend/extension/user/drawer.js",
+        "frontend/extension/user/logIn.js",
+        "frontend/extension/user/form.js",
+        "frontend/extension/user/content.js",
+        "frontend/extension/content-script-loader.js"
+
+     
+      ],
+      "matches": ["https://www.yad2.co.il/*"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; connect-src http://127.0.0.1:8000;"    
+  }
+}
