@@ -18,7 +18,7 @@
     {
       "matches": ["https://www.yad2.co.il/realestate/*"],
       "js": ["frontend/extension/content-script-loader.js"],
-      "css": ["frontend/extension/styles.output.css"]
+      "css": ["styles.output.css"]
     }
   ],
   "web_accessible_resources": [
@@ -35,8 +35,7 @@
         "frontend/extension/user/drawer.js",
         "frontend/extension/user/logIn.js",
         "frontend/extension/user/form.js",
-        "frontend/extension/user/likedApts.js",
-        "frontend/extension/user/dislikedApts.js",
+        "frontend/extension/user/likedOrDislikedApts.js",
         "frontend/extension/user/content.js",
         "frontend/extension/content-script-loader.js"
 
