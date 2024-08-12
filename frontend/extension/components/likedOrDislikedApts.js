@@ -59,7 +59,7 @@ export async function getApts(like) {
             <tr id="apt-${apt.id}" data-city="${apt.city}">
               <td>${apt.city}</td>
               <td><a href="${apt.url}" target="_blank" class="link link-hover">${apt.address}</a></td>
-              <td><button class="btn btn-xs btn-error" onclick="deleteApt(${apt.id})">למחוק</button></td>
+              <td><button class="btn btn-outline btn-warning" onclick="deleteApt(${apt.id})">למחוק</button></td>
             </tr>
           `;
         });
@@ -68,17 +68,6 @@ export async function getApts(like) {
       content += `
           </tbody>
         </table>
-      `;
-
-      // Add city selection and delete all button
-      content += `
-        <div class="mt-4 flex justify-between items-center">
-          <select id="citySelect" class="select select-bordered mr-2">
-            <option value="">בחר עיר</option>
-            ${cities.map(city => `<option value="${city}">${city}</option>`).join('')}
-          </select>
-          <button class="btn btn-error ml-8" onclick="deleteAllInCity()">מחק הכל בעיר הנבחרת</button>
-        </div>
       `;
     }
 
@@ -104,26 +93,6 @@ export async function getApts(like) {
       }
     };
 
-    // Attach the deleteAllInCity function to the window object
-    window.deleteAllInCity = function() {
-      const citySelect = document.getElementById('citySelect');
-      const selectedCity = citySelect.value;
-      if (!selectedCity) {
-        console.log("No city selected.");
-        return;
-      }
-      const rows = document.querySelectorAll(`tr[data-city="${selectedCity}"]`);
-      rows.forEach(row => {
-        const aptId = row.id.split('-')[1];
-        row.remove();
-        console.log(`Apartment with ID ${aptId} was deleted from city ${selectedCity}.`);
-        const swipeData = {
-          apt_id: parseInt(aptId),
-          swipe: like ? "left" : "right"
-        };
-        deletePrefrence(swipeData);
-      });
-    };
   } catch (error) {
     console.error("Error fetching apts:", error);
   }

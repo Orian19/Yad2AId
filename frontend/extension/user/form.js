@@ -4,15 +4,33 @@ import { hideDrawer } from './drawer.js'
 // Function to create the apartment details form
 export function createApartmentDetailsForm() {
     const formHtml = `
-        <form id="apartmentForm" style="display: flex; flex-direction: column; gap: 12px;">
-            <textarea id="description" placeholder="Description" class="textarea textarea-bordered w-full" style="text-align: left;"></textarea>
-            <input type="number" id="price" placeholder="Price Budget" class="input input-bordered w-full" required style="text-align: left;">
-            <input type="text" id="city" placeholder="City - Hebrew" class="input input-bordered w-full" required style="text-align: left;">
-            <input type="number" id="sqm" placeholder="Minimum Square Meter" class="input input-bordered w-full" required style="text-align: left;">
-            <input type="number" id="rooms" placeholder="Number of rooms" class="input input-bordered w-full" required style="text-align: left;">
-            <button type="submit" class="btn btn-ghost">Submit</button>
-        </form>
+    <form id="apartmentForm" style="display: flex; flex-direction: column; gap: 12px;">
+      <textarea id="description" placeholder="תיאור" class="textarea textarea-bordered w-full" style="text-align: right;"></textarea>
+      
+      <label class="input input-bordered flex items-center gap-2">
+        <span>מחיר מקסימלי</span>
+        <input type="number" id="price" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
+      </label>
+      
+      <label class="input input-bordered flex items-center gap-2">
+        <span>עיר</span>
+        <input type="text" id="city" placeholder="  באנגלית" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
+      </label>
+      
+      <label class="input input-bordered flex items-center gap-2">
+        <span>מטר מרובע</span>
+        <input type="number" id="sqm" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
+      </label>
+      
+      <label class="input input-bordered flex items-center gap-2">
+        <span>מספר חדרים</span>
+        <input type="number" id="rooms" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
+      </label>
+      
+      <button type="submit" class="btn btn-outline btn-success">Submit</button>
+    </form>
     `;
+    
     
     const drawerBody = document.getElementById('drawerBody');
     drawerBody.innerHTML = formHtml;
