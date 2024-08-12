@@ -1,7 +1,7 @@
 import { drawer } from '../components/drawerFormat.js';
 import { createApartmentDetailsForm } from './form.js';
 import { showLogIn, handleLogout } from './logIn.js';
-import { getApts } from './likedOrDislikedApts.js'
+import { getApts } from '../components/likedOrDislikedApts.js'
 
 // Function to get login status from sessionStorage
 export function getLoggedIn() {
@@ -27,7 +27,7 @@ export function showDrawer() {
     document.getElementById('apartmentDetailsBtn').addEventListener('click', createApartmentDetailsForm);
     document.getElementById('logInBtn').addEventListener('click', showLogIn);
     document.getElementById('logOutBtn').addEventListener('click', handleLogout);
-    
+
      // true boolean in getApts retrieves liked apartments
      document.getElementById('likedApartmentsBtn').addEventListener('click', () => getApts(true));
     

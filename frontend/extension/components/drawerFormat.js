@@ -19,15 +19,15 @@ drawer.style.cssText = `
 drawer.innerHTML = `
   <div class="drawer-content" style="flex-grow: 1; display: flex; flex-direction: column; height: 100%;">
     <div class="drawer-nav" style="padding: 10px;">
-      <button id="logInBtn" class="btn btn-ghost">Log In</button>
-      <button id="apartmentDetailsBtn" class="btn btn-ghost" style="display: none;">Apartment Details</button>
-      <button id="likedApartmentsBtn" class="btn btn-ghost" style="display: none;">My Apartments</button>
-      <button id="dislikedApartmentsBtn" class="btn btn-ghost" style="display: none;">Spam Apartments</button>
+      <button id="logInBtn" class="btn btn-ghost">כניסה לחשבון</button>
+      <button id="apartmentDetailsBtn" class="btn btn-ghost" style="display: none;">פרטי דירה</button>
+      <button id="likedApartmentsBtn" class="btn btn-ghost" style="display: none;">דירות שאהבתי</button>
+      <button id="dislikedApartmentsBtn" class="btn btn-ghost" style="display: none;">דירות שלא אהבתי</button>
     </div>
     <div id="drawerBody" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
     <div class="drawer-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-top: 1px solid #ddd;">
-      <button id="closeDrawer" class="btn btn-ghost">Close</button>
-      <button id="logOutBtn" class="btn btn-ghost" style="display: none;">Log Out</button>
+      <button id="closeDrawer" class="btn btn-ghost">לסגור</button>
+      <button id="logOutBtn" class="btn btn-ghost" style="display: none;">לצאת מהחשבון</button>
     </div>
   </div>
 `;

@@ -9,10 +9,10 @@ export function showLogIn() {
   const loginForm = `
     <form id="loginForm">
       <div style="margin-bottom: 15px;">
-        <label for="email" style="display: block; margin-bottom: 5px;">Email:</label>
+        <label for="email" style="display: block; margin-bottom: 5px;">אימייל:</label>
         <input type="email" id="email" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
       </div>
-      <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Log In</button>
+      <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">הרשמה</button>
     </form>
   `;
 

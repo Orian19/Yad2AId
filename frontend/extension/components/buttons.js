@@ -56,14 +56,14 @@ LeftButton.style.left = '10px';
 LeftButton.style.transform = 'translateY(-50%)';
 
 // Create the Yad2Button with text 
-export const Yad2Button = createButton('<span>Yad2Aid</span>', 'btn btn-outline btn-success fixed bottom-3 right-3 transform -translate-x-1/2 z-50');
+export const Yad2Button = createButton('<span>יד2אייד</span>', 'btn btn-outline btn-success fixed bottom-3 right-3 transform -translate-x-1/2 z-50');
 Yad2Button.style.width = '100px'; // Match the width of Yad2Button
 Yad2Button.style.bottom = '20px'; 
 Yad2Button.style.right = '20px'; 
 Yad2Button.style.transform = 'none';
 
 // Create the ExitButton with text
-export const ExitButton = createButton('<span>Exit</span>','btn btn-outline btn-warning fixed bottom-3 left-3 transform -translate-x-1/2 z-50');
+export const ExitButton = createButton('<span>יציאה</span>','btn btn-outline btn-warning fixed bottom-3 left-3 transform -translate-x-1/2 z-50');
 ExitButton.style.width = '100px'; // Match the width of Yad2Button
 ExitButton.style.bottom = '20px'; 
 ExitButton.style.left = '20px'; 
