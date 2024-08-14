@@ -14,5 +14,10 @@ window.gtag = function() {
   dataLayer.push(arguments);
 };
 
+//create a sendAnalytics function
+window.sendAnalytics = function(event, data) {
+  gtag('event', event, data);
+};
+
 gtag('js', new Date());
 gtag('config', measurementId);
