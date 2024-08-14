@@ -1,8 +1,7 @@
-import { drawer } from './drawerFormat.js';
+import { drawer } from '../components/drawerFormat.js';
 import { createApartmentDetailsForm } from './form.js';
 import { showLogIn, handleLogout } from './logIn.js';
-import { likedApts } from './likedApts.js'
-import { disLikedApts } from './dislikedApts.js';
+import { getApts } from '../components/likedOrDislikedApts.js'
 
 // Function to get login status from sessionStorage
 export function getLoggedIn() {
@@ -26,10 +25,15 @@ export function showDrawer() {
     // Add event listeners when the drawer is added to the DOM
     document.getElementById('closeDrawer').addEventListener('click', hideDrawer);
     document.getElementById('apartmentDetailsBtn').addEventListener('click', createApartmentDetailsForm);
-    document.getElementById('likedApartmentsBtn').addEventListener('click', likedApts);
-    document.getElementById('dislikedApartmentsBtn').addEventListener('click', disLikedApts);
     document.getElementById('logInBtn').addEventListener('click', showLogIn);
     document.getElementById('logOutBtn').addEventListener('click', handleLogout);
+
+     // true boolean in getApts retrieves liked apartments
+     document.getElementById('likedApartmentsBtn').addEventListener('click', () => getApts(true));
+    
+     // false boolean in getApts retrieves disliked apartments
+     document.getElementById('dislikedApartmentsBtn').addEventListener('click', () => getApts(false));
+     
     
     // Update button visibility based on login status
     updateButtonVisibility();

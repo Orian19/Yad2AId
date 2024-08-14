@@ -42,3 +42,13 @@ class AptFilter(BaseModel):
     # furnished: bool = Field(..., description="furnished apartment")
     # storage: bool = Field(..., description="storage in the building")
     # date: str = Field(..., description="date of the apartment")
+
+class GetApts(BaseModel):
+    """
+    swipe left or right - user liked or disliked the apartment
+    """
+    model_config = {
+        "extra": "forbid",  # not allowing attributes that are not defined here to be sent from the client
+    }
+    user_name: str = Field(..., description="user name")
+    liked: bool = Field(..., description="get disliked apartments (false) get liked apartments (true)", examples=[True, False])

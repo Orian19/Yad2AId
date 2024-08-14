@@ -1,7 +1,7 @@
-import { Yad2Button, LeftButton, RightButton, ExitButton } from './buttons.js'; 
+import { Yad2Button, LeftButton, RightButton, ExitButton } from '../components/buttons.js'; 
 import { showDrawer } from './drawer.js';
-import { exitExtension } from './exit.js';
-import { swipe, getSessionData } from './swipe.js';
+import { exitExtension } from '../components/exit.js';
+import { swipe, getSessionData } from '../components/swipe.js';
 
 // Add event listener to the Yad2Button to open the drawer when clicked.
 Yad2Button.addEventListener('click', showDrawer);

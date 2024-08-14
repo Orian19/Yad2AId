@@ -18,30 +18,28 @@
     {
       "matches": ["https://www.yad2.co.il/realestate/*"],
       "js": ["frontend/extension/content-script-loader.js"],
-      "css": ["frontend/extension/styles.output.css"]
+      "css": ["styles.output.css"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "frontend/extension/content.js",
-        "frontend/extension/sendRequest.js",
-        "frontend/extension/buttons.js",
-        "frontend/extension/drawer.js",
-        "frontend/extension/swipe.js",
-        "frontend/extension/content-script-loader.js",
-        "frontend/extension/drawerFormat.js",
-        "frontend/extension/exit.js",
-        "frontend/extension/logIn.js",
-        "frontend/extension/form.js",
-        "frontend/extension/sendLogIn.js",
-        "frontend/extension/likedApts.js",
-        "frontend/extension/fetchLikedApts.js",
-        "frontend/extension/sendDeleteRequest.js",
-        "frontend/extension/fetchDislikedApts.js",
-        "frontend/extension/dislikedApts.js"
+        "frontend/extension/server/sendRequest.js",
+        "frontend/extension/server/sendLogIn.js",
+        "frontend/extension/server/sendDeleteRequest.js",
+        "frontend/extension/server/fetchApts.js",
+        "frontend/extension/components/buttons.js",
+        "frontend/extension/components/exit.js",
+        "frontend/extension/components/drawerFormat.js",
+        "frontend/extension/components/swipe.js",
+        "frontend/extension/components/likedOrDislikedApts.js",
+        "frontend/extension/user/drawer.js",
+        "frontend/extension/user/logIn.js",
+        "frontend/extension/user/form.js",
+        "frontend/extension/user/content.js",
+        "frontend/extension/content-script-loader.js"
 
-
+     
       ],
       "matches": ["https://www.yad2.co.il/*"]
     }

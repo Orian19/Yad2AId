@@ -1,3 +1,5 @@
+//Azure: https://python-webapp-quickstart-000.azurewebsites.net/login/
+
 export const loginUser = async (userData) => {
     try {
         console.log("Sending login request with data:", { userData });

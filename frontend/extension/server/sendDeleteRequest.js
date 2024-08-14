@@ -1,3 +1,5 @@
+//Azure: https://python-webapp-quickstart-000.azurewebsites.net/deleteApt/
+
 export const deletePrefrence = async (swipeData) => {
     try {
         console.log("Sending login request with data:", { swipeData });

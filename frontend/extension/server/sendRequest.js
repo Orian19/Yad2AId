@@ -1,3 +1,5 @@
+//Azure: https://python-webapp-quickstart-000.azurewebsites.net/apartment/
+
 export const sendRequest = async (userData, aptFilterData, swipeData) => {
     try {
         console.log("Sending request with data:", { userData, aptFilterData, swipeData });
