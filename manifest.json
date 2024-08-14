@@ -5,14 +5,17 @@
   "description": "Redirects to Chrome Extension of Yad2Aid",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "host_permissions": [
     "http://127.0.0.1:8000/*",
     "https://www.yad2.co.il/realestate/*"
   ],
   "background": {
-    "service_worker": "frontend/extension/background.js"
+    "service_worker": "frontend/extension/background.js",
+    "type": "module"
+
   },
   "content_scripts": [
     {
@@ -37,7 +40,8 @@
         "frontend/extension/user/logIn.js",
         "frontend/extension/user/form.js",
         "frontend/extension/user/content.js",
-        "frontend/extension/content-script-loader.js"
+        "frontend/extension/content-script-loader.js",
+        "frontend/extension/analytics/analytics.js"
 
      
       ],
