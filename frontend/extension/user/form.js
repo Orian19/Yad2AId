@@ -14,7 +14,7 @@ export function createApartmentDetailsForm() {
       
       <label class="input input-bordered flex items-center gap-2">
         <span>עיר</span>
-        <input type="text" id="city" placeholder="  באנגלית" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
+        <input type="text" id="city" placeholder="  עברית" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
       </label>
       
       <label class="input input-bordered flex items-center gap-2">
