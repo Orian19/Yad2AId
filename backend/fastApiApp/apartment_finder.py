@@ -1,5 +1,5 @@
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastApiApp.schemas import Swipe, User, AptFilter
 from utils.db_utils import create_connection
@@ -7,10 +7,15 @@ from embedding.most_similar_apts import most_similar_apts
 from utils.refresh_apts_urls import check_url
 from embedding.update_english_columns import translate_to_english
 
+from jobs_scheduler import run_scheduler
+import threading
+
 import uvicorn
 import os
 
 app = FastAPI()
+
+# threading.Thread(target=run_scheduler, daemon=True).start()
 
 # Fetch the allowed origin from the environment variable
 allowed_origin = os.getenv('CORS_ORIGIN', '')
@@ -36,11 +41,72 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class AptFinder:
     def __init__(self):
         self.connection, self.cursor = create_connection()
         
+    def login_user(self, user: User):
+        """
+        Log in the user. If the user doesn't exist, create a new entry.
+        :param user: User object containing the user_name
+        :return: None
+        """
+        # Check if the user already exists
+        query = """
+            SELECT UserId
+            FROM Users
+            WHERE Name = ?
+        """
+        self.cursor.execute(query, (user.user_name,))
+        result = self.cursor.fetchone()
+
+        if result:
+            # User exists, no action needed
+            print(f"User '{user.user_name}' logged in successfully.")
+        else:
+            # User doesn't exist, create a new entry
+            insert_query = """
+                INSERT INTO Users (Name)
+                VALUES (?)
+            """
+            self.cursor.execute(insert_query, (user.user_name,))
+            self.connection.commit()
+            print(f"New user '{user.user_name}' created and logged in successfully.")
+    
+    def getUserApts(self, user: User):
+        """
+        Get all apartments liked by the user, including their details.
+        :param user: User object containing the user_name
+        :return: List of dictionaries containing apartment details
+        """
+        user_id = self.get_user_id(user.user_name)
+    
+        if user_id is None:
+            return []  # Return an empty list if the user doesn't exist
+    
+        query = """
+            SELECT a.ApartmentId, a.Address, c.CityName, a.Url
+            FROM UserLikedApartments ula
+            JOIN Apartments a ON ula.ApartmentId = a.ApartmentId
+            JOIN Cities c ON a.CityId = c.CityId
+            WHERE ula.UserId = ?
+        """
+    
+        self.cursor.execute(query, (user_id,))
+        liked_apartments = self.cursor.fetchall()
+    
+        # Convert the results to a list of dictionaries
+        apartment_details = [
+            {
+                "id": apt[0],
+                "address": apt[1],
+                "city": apt[2],
+                "url": apt[3]
+            }
+            for apt in liked_apartments
+        ]
+    
+        return apartment_details
 
     def get_apt_url(self, apt_id: int):
         """
@@ -191,23 +257,23 @@ class AptFinder:
 
             # Get the URL of the best match
             best_match_url = self.get_apt_url(best_match_id)
+            break
 
             # Check if the URL is valid, if so, break the loop
-            if check_url(best_match_id, best_match_url):
-                break
-            else:
-                # remove faulty apartment_id from filtered_apts
-                filtered_apts = [apt_id for apt_id in filtered_apts if apt_id != best_match_id]
+            # if check_url(best_match_id, best_match_url):
+            #     break
+            # else:
+            #     # remove faulty apartment_id from filtered_apts
+            #     filtered_apts = [apt_id for apt_id in filtered_apts if apt_id != best_match_id]
 
-                # edge case we ran out of apartments
-                if not filtered_apts:
-                    return None, None  # No apartments found after filtering
-
+            #     # edge case we ran out of apartments
+            #     if not filtered_apts:
+            #         return None, None  # No apartments found after filtering
         return best_match_url, best_match_id
 
 
 apt = AptFinder()
-usr = UserInformation(apt.connection, apt.cursor)
+
 
 @app.post("/apartment/")
 async def find_next_apt_match(user: User, apt_filter: AptFilter, swipe: Swipe):
@@ -234,8 +300,8 @@ async def logIn(user: User):
     :param user:
     :return: None
     """
-    global usr
-    usr.login_user(user)
+    global apt
+    apt.login_user(user)
     
 @app.post("/likedApts/")
 async def getLikedApts(user: User):
@@ -244,57 +310,11 @@ async def getLikedApts(user: User):
     :param user:
     :return: dict
     """
-    global usr
-    liked_apts = usr.getUserApts(user, True)
+    global apt
+    liked_apts = apt.getUserApts(user)
     if liked_apts is None:
         print("No apartments liked yet")
         raise HTTPException(status_code=404, detail="No matching apartment found")
-    for apartment in liked_apts:
-        print(f"Liked Apt: {apartment}")      
+    for apt in liked_apts:
+        print(f"Liked Apt: {apt}")      
     return liked_apts
-
-@app.post("/dislikedApts/")
-async def getDislikedApts(user: User):
-    """
-    get user liked apartments
-    :param user:
-    :return: dict
-    """
-    global usr
-    disliked_apts = usr.getUserApts(user, False)
-    if disliked_apts is None:
-        print("No apartments liked yet")
-        raise HTTPException(status_code=404, detail="No matching apartment found")
-    for apartment in disliked_apts:
-        print(f"Liked Apt: {apartment}")      
-    return disliked_apts
-
-@app.post("/deleteApt/")
-async def getLikedApts(swipe: Swipe):
-    """
-    If swipe is left, delete apartment with indicated apartment id from user liked apartments, 
-    otherwise if swipe is right delete apartment with indicated apartment id from user disliked apartments
-    :param swipe:
-    :return: 
-    """
-    global usr
-    if swipe.swipe == 'left':
-        usr.updateUserLikedApts(swipe.apt_id)
-    else:
-        usr.updateUserDislikedApts(swipe.apt_id)
-
-# TODO: uncomment for testing purposes
-# if __name__ == "__main__":
-#    apt = AptFinder()
-#    print(apt.getUserApts(User(user_name="danastok@gmail.com")))
-    
-# TODO: uncomment for testing purposes
-#if __name__ == "__main__":
-#    apt = AptFinder()
-#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description=""), Swipe(apt_id=0, swipe="right",)))
-
-# TODO: uncomment for testing purposes
-#if __name__ == "__main__":
-#    apt = AptFinder()
-#    print(apt.login_user(User(user_name="danastok@gmail.com")))
-

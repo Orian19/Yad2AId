@@ -98,3 +98,5 @@ zope.interface
 gunicorn
 deep-translator
 jinja2
+apscheduler
+selenium
