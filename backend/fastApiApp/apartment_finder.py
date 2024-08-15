@@ -1,12 +1,12 @@
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
-from schemas import Swipe, User, AptFilter, GetApts
-from backend.utils.db_utils import create_connection
-from backend.embedding.most_similar_apts import most_similar_apts
-from backend.utils.refresh_apts_urls import check_url
-from backend.embedding.update_english_columns import translate_to_english
-from user_information import UserInformation
+from fastApiApp.schemas import Swipe, User, AptFilter, GetApts
+from utils.db_utils import create_connection
+from embedding.most_similar_apts import most_similar_apts
+from utils.refresh_apts_urls import check_url
+from embedding.update_english_columns import translate_to_english
+from fastApiApp.user_information import UserInformation
 
 app = FastAPI()
 
