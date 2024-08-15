@@ -41,7 +41,7 @@
         "frontend/extension/user/form.js",
         "frontend/extension/user/content.js",
         "frontend/extension/content-script-loader.js",
-        "frontend/extension/analytics/analytics.js"
+        "frontend/analytics/analytics.js"
 
      
       ],

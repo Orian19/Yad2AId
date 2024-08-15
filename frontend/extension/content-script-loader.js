@@ -1,7 +1,7 @@
 (function() {
     // Load the analytics script first
     const analyticsScript = document.createElement('script');
-    analyticsScript.src = chrome.runtime.getURL('frontend/extension/analytics/analytics.js');
+    analyticsScript.src = chrome.runtime.getURL('frontend/analytics/analytics.js');
     analyticsScript.type = 'text/javascript';
     analyticsScript.onload = function() {
         console.log("Analytics script loaded");

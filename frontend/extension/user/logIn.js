@@ -50,7 +50,7 @@ async function handleSubmit(event) {
   //Login the user 
   const loginSuccessful = await loginUser(userData);
 
-  //TEST checks for success of login
+  // checks for success of login
   if (loginSuccessful) {
     //Track login event to Analytics
     if (typeof sendAnalytics === 'function') {
@@ -59,7 +59,7 @@ async function handleSubmit(event) {
         'event_action': 'Login',
         'event_label': email  
       });
-    }
+    } 
     setTimeout(() => {
       setLoggedIn(true);
       //Delete email input box & submit button
