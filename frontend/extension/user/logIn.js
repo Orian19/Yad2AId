@@ -50,8 +50,16 @@ async function handleSubmit(event) {
   //Login the user 
   const loginSuccessful = await loginUser(userData);
 
-  //TEST checks for success of login
+  // checks for success of login
   if (loginSuccessful) {
+    //Track login event to Analytics
+    if (typeof sendAnalytics === 'function') {
+      sendAnalytics('event', {
+        'event_category': 'User',
+        'event_action': 'Login',
+        'event_label': email  
+      });
+    } 
     setTimeout(() => {
       setLoggedIn(true);
       //Delete email input box & submit button
@@ -60,14 +68,27 @@ async function handleSubmit(event) {
       updateButtonVisibility();
     }, 200); // Simulating server delay
   } else {
+    //Track login failure event to Analytics 
+    if (typeof sendAnalytics === 'function') {
+      sendAnalytics('event', {
+        'event_category': 'User',
+        'event_action': 'Login Failed'
+      });
+    }
     console.log("Login failed");
-    // Handle login failure
   }
 
 }
 
 // Function to handle logout
 export function handleLogout() {
+  // Track logout event to Analytics
+  if (typeof sendAnalytics === 'function') {
+    sendAnalytics('event', {
+      'event_category': 'User',
+      'event_action': 'Logout'
+    });
+  }
   sessionStorage.setItem('isLoggedIn', 'false'); //set loggedIn indicator to false 
 
   sessionStorage.removeItem('user_name'); // Remove user_name from session storage
