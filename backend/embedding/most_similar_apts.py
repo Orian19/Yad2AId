@@ -1,8 +1,8 @@
 import random
 import numpy as np
-from backend.utils.db_utils import create_connection
-from backend.embedding.create_embedding import get_embedding
-from backend.embedding.save_data import load_saved_data, save_saved_data
+from utils.db_utils import create_connection
+from embedding.create_embedding import get_embedding
+from embedding.save_data import load_saved_data, save_saved_data
 from sklearn.metrics.pairwise import cosine_similarity
 
 #Load previous descriptions
@@ -104,6 +104,10 @@ def most_similar_apts(target_ids: list, user_id: int, description = None):
             return target_ids[0]
 
         liked_ids_embeddings = fetch_liked_apts(user_id)
+        # If user inserted a description take it into account
+        if description != None:
+            liked_ids_embeddings.insert(0, (0, get_embedding(description)))
+
         #If user inserted a description take it into account
         if description:
             update_description_embedding(description)

@@ -39,7 +39,7 @@ def create_connection():
     sqlite3.register_adapter(np.ndarray, adapt_array)
     sqlite3.register_converter("array", convert_array)
 
-    connection = sqlite3.connect("backend/AIdServer/apartmentsAId.db", detect_types=sqlite3.PARSE_DECLTYPES)
+    connection = sqlite3.connect(r"AIdServer/apartmentsAId.db", detect_types=sqlite3.PARSE_DECLTYPES)
     cursor = connection.cursor()
 
     return connection, cursor

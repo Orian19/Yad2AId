@@ -45,7 +45,7 @@ MarkupSafe
 matplotlib
 mdurl
 numpy
-openai
+openai==0.28
 orjson
 packaging
 parsel
