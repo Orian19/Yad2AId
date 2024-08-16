@@ -27,7 +27,7 @@ export function createApartmentDetailsForm() {
         <input type="number" id="rooms" class="grow" required style="text-align: right; border: none; outline: none; background: transparent;">
       </label>
       
-      <button type="submit" class="btn btn-outline btn-success">Submit</button>
+      <button type="submit" class="btn btn-outline btn-success">חיפוש</button>
     </form>
     `;
     

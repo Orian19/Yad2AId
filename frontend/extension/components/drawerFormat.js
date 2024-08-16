@@ -19,7 +19,7 @@ drawer.style.cssText = `
 drawer.innerHTML = `
   <div class="drawer-content" style="flex-grow: 1; display: flex; flex-direction: column; height: 100%;">
     <div class="drawer-nav" style="padding: 10px;">
-      <button id="logInBtn" class="btn btn-ghost">כניסה לחשבון</button>
+      <button id="logInBtn" class="btn btn-ghost"> הרשמה או התחברות</button>
       <button id="apartmentDetailsBtn" class="btn btn-ghost" style="display: none;">פרטי דירה</button>
       <button id="likedApartmentsBtn" class="btn btn-ghost" style="display: none;">דירות שאהבתי</button>
       <button id="dislikedApartmentsBtn" class="btn btn-ghost" style="display: none;">דירות שלא אהבתי</button>
