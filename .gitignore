@@ -7,5 +7,5 @@ __pycache__
 *.db
 node_modules
 
-backend/venv
-backend/.vscode
+backend/utils/.venv
+.vscode

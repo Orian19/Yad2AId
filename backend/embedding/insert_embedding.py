@@ -1,5 +1,5 @@
-from backend.utils.db_utils import create_connection
-from backend.embedding.create_embedding import get_embedding
+from utils.db_utils import create_connection
+from embedding.create_embedding import get_embedding
 
 
 def insert_embeddings(con, cur):
@@ -13,8 +13,8 @@ def insert_embeddings(con, cur):
         embedding = get_embedding(description_english)
         # Update the database with the embedding
         cur.execute("UPDATE Apartments SET Embedding = ? WHERE ApartmentId = ?", (embedding, apartment_id))
+        con.commit()
 
-    con.commit()
     con.close()
 
 

@@ -1,5 +1,5 @@
 import sqlite3
-from schemas import Swipe, User, AptFilter, GetApts
+from fastApiApp.schemas import Swipe, User, AptFilter, GetApts
 
 class UserInformation:
     def __init__(self, connection, cursor):
