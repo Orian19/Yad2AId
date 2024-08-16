@@ -13,8 +13,8 @@ def insert_embeddings(con, cur):
         embedding = get_embedding(description_english)
         # Update the database with the embedding
         cur.execute("UPDATE Apartments SET Embedding = ? WHERE ApartmentId = ?", (embedding, apartment_id))
+        con.commit()
 
-    con.commit()
     con.close()
 
 

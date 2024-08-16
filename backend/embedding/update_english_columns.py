@@ -42,7 +42,7 @@ def update_english_description_column(conn, cursor):
 
     # Fetch descriptions that need translation
     cursor.execute('''
-        SELECT ApartmentId, Description FROM Apartments
+        SELECT ApartmentId, Description FROM main.Apartments
         WHERE Description != 'empty' AND (DescriptionEnglish IS NULL OR DescriptionEnglish = '');
     ''')
     apartments = cursor.fetchall()
@@ -68,7 +68,7 @@ def update_english_description_column(conn, cursor):
     logging.info("English descriptions updated successfully.")
 
 # Example usage
-#con, cur = create_connection()
-#update_english_description_column(con, cur)
-#update_english_city_names_column(con, cur)
-#con.close()
+con, cur = create_connection()
+update_english_description_column(con, cur)
+# update_english_city_names_column(con, cur)
+con.close()
