@@ -104,9 +104,6 @@ def most_similar_apts(target_ids: list, user_id: int, description = None):
             return target_ids[0]
 
         liked_ids_embeddings = fetch_liked_apts(user_id)
-        # If user inserted a description take it into account
-        if description != None:
-            liked_ids_embeddings.insert(0, (0, get_embedding(description)))
 
         #If user inserted a description take it into account
         if description:

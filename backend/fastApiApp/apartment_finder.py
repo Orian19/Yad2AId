@@ -168,38 +168,27 @@ class AptFinder:
         filtered_apts = self.filter_apts(user, apt_filter, swipe)
         
         # Keep trying until a valid URL is found
-        while True:
-            if not filtered_apts:
-                return None, None  # No apartments found after filtering
+        #while True:
+        if not filtered_apts:
+            return None, None  # No apartments found after filtering
 
-            # Get the most similar apartment ID
-            user_id = self.get_user_id(user.user_name)
+        # Get the most similar apartment ID
+        user_id = self.get_user_id(user.user_name)
             
-            #If user inputted description make sure it is in English
-            if apt_filter.description != "":
-                english_description = translate_to_english(apt_filter.description)
-            else:
-                english_description = None
+        #If user inputted description make sure it is in English
+        if apt_filter.description != "":
+            english_description = translate_to_english(apt_filter.description)
+        else:
+            english_description = None
                 
-            best_match_id = most_similar_apts(filtered_apts, user_id, english_description)
+        best_match_id = most_similar_apts(filtered_apts, user_id, english_description)
 
-            # Update liked/disliked apartments
-            if swipe.apt_id != 0:
-                self.update_user_swipe(user_id, swipe.apt_id, swipe)
+        # Update liked/disliked apartments
+        if swipe.apt_id != 0:
+            self.update_user_swipe(user_id, swipe.apt_id, swipe)
 
-            # Get the URL of the best match
-            best_match_url = self.get_apt_url(best_match_id)
-
-            # Check if the URL is valid, if so, break the loop
-            if check_url(best_match_id, best_match_url):
-                break
-            else:
-                #remove faulty apartment_id from filtered_apts
-                filtered_apts = [apt_id for apt_id in filtered_apts if apt_id != best_match_id]
-                
-                #edge case we ran out of apartments
-                if not filtered_apts:
-                    return None, None  # No apartments found after filtering
+        # Get the URL of the best match
+        best_match_url = self.get_apt_url(best_match_id)
           
         return best_match_url, best_match_id
 
@@ -273,7 +262,7 @@ async def deleteApts(swipe: Swipe):
 # TODO: uncomment for testing purposes
 #if __name__ == "__main__":
 #    apt = AptFinder()
-#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description=""), Swipe(apt_id=0, swipe="right",)))
+#    print(apt.find_best_apt_match(User(user_name="Orian"), AptFilter(city="הרצליה", price=10000, sqm=50, rooms=2, description="beutiful apartment"), Swipe(apt_id=0, swipe="right",)))
 
 # TODO: uncomment for testing purposes
 #if __name__ == "__main__":
