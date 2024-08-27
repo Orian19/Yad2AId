@@ -103,5 +103,5 @@ def refresh_apts_urls() -> None:
 
     print(f"Total apartments removed: {removed_count}")
 
-refresh_apts_urls()
-driver.quit()
+# refresh_apts_urls()
+# driver.quit()

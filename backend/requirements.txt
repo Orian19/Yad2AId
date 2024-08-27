@@ -101,3 +101,4 @@ jinja2
 apscheduler
 time
 daisyui
+selenium

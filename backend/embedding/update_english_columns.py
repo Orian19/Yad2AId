@@ -1,5 +1,5 @@
 from deep_translator import GoogleTranslator
-from backend.utils.db_utils import create_connection
+from utils.db_utils import create_connection
 import logging
 
 # Setup basic logging

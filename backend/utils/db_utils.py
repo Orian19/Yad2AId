@@ -1,6 +1,7 @@
 import sqlite3
 import numpy as np
 import io
+import os
 
 
 def adapt_array(arr):
@@ -39,7 +40,10 @@ def create_connection():
     sqlite3.register_adapter(np.ndarray, adapt_array)
     sqlite3.register_converter("array", convert_array)
 
-    connection = sqlite3.connect(r"AIdServer/apartmentsAId.db", detect_types=sqlite3.PARSE_DECLTYPES)
+    # get current project root directory
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    connection = sqlite3.connect(rf"{project_root}/AIdServer/apartmentsAId.db", detect_types=sqlite3.PARSE_DECLTYPES)
     cursor = connection.cursor()
 
     return connection, cursor
