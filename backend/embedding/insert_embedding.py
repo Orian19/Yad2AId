@@ -18,5 +18,5 @@ def insert_embeddings(con, cur):
     con.close()
 
 
-con, cur = create_connection()
-insert_embeddings(con, cur)
+# con, cur = create_connection()
+# insert_embeddings(con, cur)

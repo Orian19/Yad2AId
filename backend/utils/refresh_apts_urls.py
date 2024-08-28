@@ -26,6 +26,7 @@ driver = webdriver.Firefox(options=firefox_options)
 # Initialize a counter for removed apartments
 removed_count = 0
 
+
 def check_url(apt_id: int, url: str) -> bool:
     """
     Check if the URL is valid (opens up a page and not a 404 page)
@@ -73,6 +74,7 @@ def check_url(apt_id: int, url: str) -> bool:
     finally:
         connection.close()
 
+
 def refresh_apts_urls() -> None:
     """
     Remove from the database all apartments that their URL isn't valid anymore
@@ -81,7 +83,7 @@ def refresh_apts_urls() -> None:
     """
     connection, cursor = create_connection()
     # only check apartments that haven't been updated in the last 5 days
-    five_days_ago = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
+    five_days_ago = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     cursor.execute("""
         SELECT ApartmentId, Url
         FROM Apartments
