@@ -1,5 +1,7 @@
 from typing import Any
 import re
+import time
+import os
 
 import scrapy
 from scrapy.http import Response
@@ -13,10 +15,15 @@ from utils.db_utils import get_apt_urls, remove_apt_by_url
 class DescriptionsSpider(scrapy.Spider):
     name = 'descriptions'
     apt_urls = get_apt_urls()
-    start_urls = {
-        apt_urls[0]
-    }
-    scraping_cfg = load_config()
+    if apt_urls:
+        start_urls = {
+            apt_urls[0]
+        }
+
+    # get root project path
+    project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    scraping_cfg = load_config(fr"{project_root_path}/scraping_cfg.json")
+
     custom_settings = {
         'HTTPERROR_ALLOWED_CODES': [404, 500, 302],
     }
@@ -40,7 +47,8 @@ class DescriptionsSpider(scrapy.Spider):
             # open_in_browser(response)  # for debugging purposes
 
             if 'Shield' in str(response.body):
-                raise Exception("Shield detected, exiting...")
+                # raise Exception("Shield detected, exiting...")
+                time.sleep(2)
 
             self.items = AidserverItem()
             if not DescriptionsSpider.apt_urls:

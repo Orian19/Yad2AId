@@ -3,6 +3,7 @@ import time
 from typing import Any
 import json
 import re
+import os
 
 import scrapy
 from scrapy.http import Response
@@ -17,8 +18,12 @@ class ApartmentsSpider(scrapy.Spider):
     start_urls = {
         r'https://www.yad2.co.il/realestate/rent'
     }
-    scraping_cfg = load_config()
-    page_number = 2  # pagination
+
+    # get root project path
+    project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    scraping_cfg = load_config(fr"{project_root_path}/scraping_cfg.json")
+
+    page_number = 200  # pagination
     items = None
 
     @staticmethod
@@ -69,7 +74,8 @@ class ApartmentsSpider(scrapy.Spider):
         # open_in_browser(response)  # for debugging purposes
 
         if 'Shield' in str(response.body):  # or 'Secure' in str(response.certificate):
-            raise Exception("Shield detected, exiting...")
+            # raise Exception("Shield detected, exiting...")
+            time.sleep(2)
 
         self.items = AidserverItem()
 
