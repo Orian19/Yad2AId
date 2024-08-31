@@ -1,9 +1,10 @@
 //Azure: https://python-webapp-quickstart-000.azurewebsites.net/apartment/
+// local: http://127.0.0.1:8000/apartment/
 
 export const sendRequest = async (userData, aptFilterData, swipeData) => {
     try {
         console.log("Sending request with data:", { userData, aptFilterData, swipeData });
-        const response = await fetch('http://127.0.0.1:8000/apartment/', {
+        const response = await fetch('https://python-webapp-quickstart-000.azurewebsites.net/apartment/', {
             method: 'POST',
             mode: 'cors',
             headers: {
